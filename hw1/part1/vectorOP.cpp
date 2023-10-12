@@ -15,7 +15,7 @@ void absVector(float *values, float *output, int N)
   {
 
     // All ones
-    maskAll = _pp_init_ones();
+    maskAll = _pp_init_ones(N - i);
 
     // All zeros
     maskIsNegative = _pp_init_ones(0);

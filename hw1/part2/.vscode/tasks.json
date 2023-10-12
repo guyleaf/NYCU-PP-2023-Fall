@@ -1,0 +1,37 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build part2",
+      "command": "make",
+      "type": "process",
+      "args": ["all"],
+      "options": {
+        "cwd": "${workspaceFolder:part2}"
+      },
+      "problemMatcher": ["$gcc"],
+      "group": "build"
+    },
+    {
+      "label": "Build part2 with debug mode",
+      "command": "make",
+      "type": "process",
+      "args": ["debug"],
+      "options": {
+        "cwd": "${workspaceFolder:part2}"
+      },
+      "problemMatcher": ["$gcc"],
+      "group": "build"
+    },
+    {
+      "label": "Clean part2",
+      "command": "make",
+      "type": "process",
+      "args": ["clean"],
+      "options": {
+        "cwd": "${workspaceFolder:part2}"
+      },
+      "group": "build"
+    }
+  ]
+}

@@ -12,18 +12,21 @@
 extern Logger PPLogger;
 
 template <typename T>
-struct __pp_vec {
-  T value[VECTOR_WIDTH];
+struct __pp_vec
+{
+    T value[VECTOR_WIDTH];
 };
 
 // Declare a mask with __pp_mask
-struct __pp_mask : __pp_vec<bool> {};
+struct __pp_mask : __pp_vec<bool>
+{
+};
 
 // Declare a floating point vector register with __pp_vec_float
 #define __pp_vec_float __pp_vec<float>
 
 // Declare an integer vector register with __pp_vec_int
-#define __pp_vec_int   __pp_vec<int>
+#define __pp_vec_int __pp_vec<int>
 
 //***********************
 //* Function Definition *
@@ -59,13 +62,13 @@ void _pp_vmove_int(__pp_vec_int &dest, __pp_vec_int &src, __pp_mask &mask);
 
 // Load values from array src to vector register dest if vector lane active
 //  otherwise keep the old value
-void _pp_vload_float(__pp_vec_float &dest, float* src, __pp_mask &mask);
-void _pp_vload_int(__pp_vec_int &dest, int* src, __pp_mask &mask);
+void _pp_vload_float(__pp_vec_float &dest, float *src, __pp_mask &mask);
+void _pp_vload_int(__pp_vec_int &dest, int *src, __pp_mask &mask);
 
 // Store values from vector register src to array dest if vector lane active
 //  otherwise keep the old value
-void _pp_vstore_float(float* dest, __pp_vec_float &src, __pp_mask &mask);
-void _pp_vstore_int(int* dest, __pp_vec_int &src, __pp_mask &mask);
+void _pp_vstore_float(float *dest, __pp_vec_float &src, __pp_mask &mask);
+void _pp_vstore_int(int *dest, __pp_vec_int &src, __pp_mask &mask);
 
 // Return calculation of (veca + vecb) if vector lane active
 //  otherwise keep the old value
@@ -86,7 +89,6 @@ void _pp_vmult_int(__pp_vec_int &vecResult, __pp_vec_int &veca, __pp_vec_int &ve
 //  otherwise keep the old value
 void _pp_vdiv_float(__pp_vec_float &vecResult, __pp_vec_float &veca, __pp_vec_float &vecb, __pp_mask &mask);
 void _pp_vdiv_int(__pp_vec_int &vecResult, __pp_vec_int &veca, __pp_vec_int &vecb, __pp_mask &mask);
-
 
 // Return calculation of absolute value abs(veca) if vector lane active
 //  otherwise keep the old value
@@ -118,6 +120,6 @@ void _pp_hadd_float(__pp_vec_float &vecResult, __pp_vec_float &vec);
 void _pp_interleave_float(__pp_vec_float &vecResult, __pp_vec_float vec);
 
 // Add a customized log to help debugging
-void addUserLog(const char * logStr);
+void addUserLog(const char *logStr);
 
 #endif

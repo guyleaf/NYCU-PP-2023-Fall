@@ -6,7 +6,7 @@
       "request": "launch",
       "name": "Debug part1",
       "program": "${workspaceFolder:part1}/myexp",
-      "args": ["-s", "3", "-l"],
+      "args": ["-s", "1"],
       "cwd": "${workspaceFolder:part1}",
       "preLaunchTask": "Debug part1",
       "linux": {
@@ -15,7 +15,7 @@
       "osx": {
         "MIMode": "lldb"
       }
-    },
+    }
   ],
   "compounds": []
 }

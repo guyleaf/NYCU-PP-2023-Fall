@@ -12,13 +12,13 @@ debug: CXXFLAGS += -g -Wextra -Wno-deprecated-declarations -fsanitize=address -f
 debug: myexp
 
 logger.o: logger.cpp logger.h PPintrin.h PPintrin.cpp def.h
-	$(CXX) $(CXXFLAGS) -c logger.cpp
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c logger.cpp
 
 PPintrin.o: PPintrin.cpp PPintrin.h logger.cpp logger.h def.h
-	$(CXX) $(CXXFLAGS) -c PPintrin.cpp
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c PPintrin.cpp
 
 myexp: PPintrin.o logger.o main.cpp serialOP.cpp vectorOP.cpp 
-	g++ $(CXXFLAGS) logger.o PPintrin.o main.cpp serialOP.cpp vectorOP.cpp -o myexp
+	g++ $(CPPFLAGS) $(CXXFLAGS) logger.o PPintrin.o main.cpp serialOP.cpp vectorOP.cpp -o myexp
 
 clean:
-	rm -f *.o *.s myexp *~
+	rm -f *.o *.out *.data *.s myexp *~

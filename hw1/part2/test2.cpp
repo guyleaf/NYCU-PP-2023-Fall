@@ -1,6 +1,7 @@
 #include <iostream>
-#include "test.h"
+
 #include "fasttime.h"
+#include "test.h"
 
 void test2(float *__restrict a, float *__restrict b, float *__restrict c, int N)
 {
@@ -15,8 +16,7 @@ void test2(float *__restrict a, float *__restrict b, float *__restrict c, int N)
         {
             /* max() */
             c[j] = a[j];
-            if (b[j] > a[j])
-                c[j] = b[j];
+            if (b[j] > a[j]) c[j] = b[j];
         }
     }
 

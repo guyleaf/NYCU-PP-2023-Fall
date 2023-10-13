@@ -1,6 +1,7 @@
 #include <iostream>
-#include "test.h"
+
 #include "fasttime.h"
+#include "test.h"
 
 double test3(double *__restrict a, int N)
 {

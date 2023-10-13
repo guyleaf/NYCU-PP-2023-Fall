@@ -13,7 +13,6 @@ void absVector(float *values, float *output, int N)
     //  Why is that the case?
     for (int i = 0; i < N; i += VECTOR_WIDTH)
     {
-
         // All ones
         maskAll = _pp_init_ones(N - i);
 
@@ -21,22 +20,23 @@ void absVector(float *values, float *output, int N)
         maskIsNegative = _pp_init_ones(0);
 
         // Load vector of values from contiguous memory addresses
-        _pp_vload_float(x, values + i, maskAll); // x = values[i];
+        _pp_vload_float(x, values + i, maskAll);  // x = values[i];
 
         // Set mask according to predicate
-        _pp_vlt_float(maskIsNegative, x, zero, maskAll); // if (x < 0) {
+        _pp_vlt_float(maskIsNegative, x, zero, maskAll);  // if (x < 0) {
 
         // Execute instruction using mask ("if" clause)
-        _pp_vsub_float(result, zero, x, maskIsNegative); //   output[i] = -x;
+        _pp_vsub_float(result, zero, x, maskIsNegative);  //   output[i] = -x;
 
         // Inverse maskIsNegative to generate "else" mask
-        maskIsNotNegative = _pp_mask_not(maskIsNegative); // } else {
+        maskIsNotNegative = _pp_mask_not(maskIsNegative);  // } else {
 
         // Prevent accessing invalid memory when VECTOR_WIDTH not divides N
         maskIsNotNegative = _pp_mask_and(maskIsNotNegative, maskAll);
 
         // Execute instruction ("else" clause)
-        _pp_vload_float(result, values + i, maskIsNotNegative); //   output[i] = x; }
+        _pp_vload_float(result, values + i,
+                        maskIsNotNegative);  //   output[i] = x; }
 
         // Write results back to memory
         _pp_vstore_float(output + i, result, maskAll);
@@ -104,9 +104,9 @@ void clampedExpVector(float *values, int *exponents, float *output, int N)
 // You can assume VECTOR_WIDTH is a power of 2
 float arraySumVector(float *values, int N)
 {
-
     //
-    // PP STUDENTS TODO: Implement your vectorized version of arraySumSerial here
+    // PP STUDENTS TODO: Implement your vectorized version of arraySumSerial
+    // here
     //
 
     for (int i = 0; i < N; i += VECTOR_WIDTH)

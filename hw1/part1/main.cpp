@@ -1,11 +1,13 @@
+#include <getopt.h>
+#include <math.h>
+#include <stdio.h>
+
+#include <algorithm>
+#include <sstream>
+
 #include "PPintrin.h"
 #include "def.h"
 #include "logger.h"
-#include <algorithm>
-#include <getopt.h>
-#include <math.h>
-#include <sstream>
-#include <stdio.h>
 using namespace std;
 
 Logger PPLogger;
@@ -36,24 +38,23 @@ int main(int argc, char *argv[])
 
     while ((opt = getopt_long(argc, argv, "s:l?", long_options, NULL)) != EOF)
     {
-
         switch (opt)
         {
-        case 's':
-            N = atoi(optarg);
-            if (N <= 0)
-            {
-                printf("Error: Workload size is set to %d (<0).\n", N);
-                return -1;
-            }
-            break;
-        case 'l':
-            printLog = true;
-            break;
-        case '?':
-        default:
-            usage(argv[0]);
-            return 1;
+            case 's':
+                N = atoi(optarg);
+                if (N <= 0)
+                {
+                    printf("Error: Workload size is set to %d (<0).\n", N);
+                    return -1;
+                }
+                break;
+            case 'l':
+                printLog = true;
+                break;
+            case '?':
+            default:
+                usage(argv[0]);
+                return 1;
         }
     }
 
@@ -71,12 +72,12 @@ int main(int argc, char *argv[])
 
     printf("\e[1;31mCLAMPED EXPONENT\e[0m (required) \n");
     bool clampedCorrect = verifyResult(values, exponents, output, gold, N);
-    if (printLog)
-        PPLogger.printLog();
+    if (printLog) PPLogger.printLog();
     PPLogger.printStats();
 
-    printf("************************ Result Verification "
-           "*************************\n");
+    printf(
+        "************************ Result Verification "
+        "*************************\n");
     if (!clampedCorrect)
     {
         printf("@@@ ClampedExp Failed!!!\n");
@@ -94,12 +95,12 @@ int main(int argc, char *argv[])
         float sumGold = arraySumSerial(values, N);
         float sumOutput = arraySumVector(values, N);
 
-        if (printLog)
-            PPLogger.printLog();
+        if (printLog) PPLogger.printLog();
         PPLogger.printStats();
 
-        printf("************************ Result Verification "
-               "*************************\n");
+        printf(
+            "************************ Result Verification "
+            "*************************\n");
 
         float epsilon = 0.1;
         bool sumCorrect = abs(sumGold - sumOutput) < epsilon * 2;
@@ -115,9 +116,11 @@ int main(int argc, char *argv[])
     }
     else
     {
-        printf("Must have N %% VECTOR_WIDTH == 0 for this problem (VECTOR_WIDTH is "
-               "%d)\n",
-               VECTOR_WIDTH);
+        printf(
+            "Must have N %% VECTOR_WIDTH == 0 for this problem (VECTOR_WIDTH "
+            "is "
+            "%d)\n",
+            VECTOR_WIDTH);
     }
 
     delete[] values;
@@ -140,7 +143,6 @@ void usage(const char *progname)
 void initValue(float *values, int *exponents, float *output, float *gold,
                unsigned int N)
 {
-
     for (unsigned int i = 0; i < N + VECTOR_WIDTH; i++)
     {
         // random input values
@@ -167,8 +169,7 @@ bool verifyResult(float *values, int *exponents, float *output, float *gold,
 
     if (incorrect != -1)
     {
-        if (incorrect >= N)
-            printf("You have written to out of bound value!\n");
+        if (incorrect >= N) printf("You have written to out of bound value!\n");
         printf("Wrong calculation at value[%d]!\n", incorrect);
         printf("value  = ");
         for (int i = 0; i < N; i++)

@@ -1,6 +1,7 @@
 #include <iostream>
-#include "test.h"
+
 #include "fasttime.h"
+#include "test.h"
 
 void test1(float *a, float *b, float *c, int N)
 {

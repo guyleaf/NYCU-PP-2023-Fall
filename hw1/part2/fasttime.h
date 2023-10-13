@@ -28,15 +28,12 @@
 #include <assert.h>
 
 #ifdef __MACH__
-#include <mach/mach_time.h> // mach_absolute_time
+#include <mach/mach_time.h>  // mach_absolute_time
 
 typedef uint64_t fasttime_t;
 
 // Return the current time.
-static inline fasttime_t gettime(void)
-{
-    return mach_absolute_time();
-}
+static inline fasttime_t gettime(void) { return mach_absolute_time(); }
 
 // Return the time different between the start and the end, as a float
 // in units of seconds.  This function does not need to be fast.
@@ -58,7 +55,7 @@ static inline unsigned int random_seed_from_clock(void)
     return (now & 0xFFFFFFFF) + (now >> 32);
 }
 
-#else // LINUX
+#else  // LINUX
 
 // We need _POSIX_C_SOURCE to pick up 'struct timespec' and clock_gettime.
 // #define _POSIX_C_SOURCE 200809L
@@ -97,6 +94,6 @@ static inline unsigned int random_seed_from_clock(void)
 int clock_gettime(clockid_t, struct timespec *) __attribute__((deprecated));
 time_t time(time_t *) __attribute__((deprecated));
 
-#endif // LINUX
+#endif  // LINUX
 
-#endif // INCLUDED_FASTTIME_DOT_H
+#endif  // INCLUDED_FASTTIME_DOT_H

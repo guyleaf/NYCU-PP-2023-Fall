@@ -44,7 +44,7 @@ void Logger::printLog()
     printf(
         "------------- "
         "--------------------------------------------------------\n");
-    for (int i = 0; i < log.size(); i++)
+    for (decltype(log)::size_type i = 0; i < log.size(); i++)
     {
         printf("%12s | ", log[i].instruction);
         for (int j = 0; j < VECTOR_WIDTH; j++)

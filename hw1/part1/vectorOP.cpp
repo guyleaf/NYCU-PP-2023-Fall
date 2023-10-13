@@ -104,14 +104,37 @@ void clampedExpVector(float *values, int *exponents, float *output, int N)
 // You can assume VECTOR_WIDTH is a power of 2
 float arraySumVector(float *values, int N)
 {
+    float result;
+    __pp_vec_float x;
+    __pp_vec_float sum = _pp_vset_float(0.f);
+    __pp_mask allMask = _pp_init_ones();
+    __pp_mask outputMask = _pp_init_ones(1);
+
     //
     // PP STUDENTS TODO: Implement your vectorized version of arraySumSerial
     // here
     //
 
+    // O(N / VECTOR_WIDTH)
     for (int i = 0; i < N; i += VECTOR_WIDTH)
     {
+        _pp_vload_float(x, values + i, allMask);
+        _pp_vadd_float(sum, sum, x, allMask);
     }
 
-    return 0.0;
+    // O(log2(VECTOR_WIDTH))
+    for (int i = 2; i <= VECTOR_WIDTH; i *= 2)
+    {
+        // after this, the adjacent pair will have the same value.
+        _pp_hadd_float(sum, sum);
+        // move even-indexed values to the left, odd-indexed values to the right
+        _pp_interleave_float(sum, sum);
+    }
+
+    // O(1)
+    // avoid storing the values to unknown address
+    // only store the first value of the vector
+    _pp_vstore_float(&result, sum, outputMask);
+
+    return result;
 }

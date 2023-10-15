@@ -104,11 +104,10 @@ void clampedExpVector(float *values, int *exponents, float *output, int N)
 // You can assume VECTOR_WIDTH is a power of 2
 float arraySumVector(float *values, int N)
 {
-    float result;
+    float result[VECTOR_WIDTH];
     __pp_vec_float x;
     __pp_vec_float sum = _pp_vset_float(0.f);
     __pp_mask allMask = _pp_init_ones();
-    __pp_mask outputMask = _pp_init_ones(1);
 
     //
     // PP STUDENTS TODO: Implement your vectorized version of arraySumSerial
@@ -133,8 +132,8 @@ float arraySumVector(float *values, int N)
 
     // O(1)
     // avoid storing the values to unknown address
-    // only store the first value of the vector
-    _pp_vstore_float(&result, sum, outputMask);
+    // use result array to catch vector
+    _pp_vstore_float(result, sum, allMask);
 
-    return result;
+    return result[0];
 }

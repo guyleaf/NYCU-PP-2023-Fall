@@ -55,4 +55,3 @@ clean:
 
 cleanall:
 	rm -rf *.o *.s $(TARGET) *~ assembly
-

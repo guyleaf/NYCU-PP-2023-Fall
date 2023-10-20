@@ -32,6 +32,18 @@
         "cwd": "${workspaceFolder:part2}"
       },
       "group": "build"
+    },
+    {
+      "label": "Debug part2",
+      "dependsOn": ["Clean part2", "Build part2 with debug mode"],
+      "dependsOrder": "sequence",
+      "group": "build"
+    },
+    {
+      "label": "Run part2",
+      "dependsOn": ["Clean part2", "Build part2"],
+      "dependsOrder": "sequence",
+      "group": "test"
     }
   ]
 }

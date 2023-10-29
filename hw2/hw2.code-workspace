@@ -60,7 +60,11 @@
         "compare": "cpp",
         "concepts": "cpp",
         "ranges": "cpp",
-        "cinttypes": "cpp"
+        "cinttypes": "cpp",
+        "thread": "cpp",
+        "chrono": "cpp",
+        "ratio": "cpp",
+        "stop_token": "cpp"
     }
   }
 }

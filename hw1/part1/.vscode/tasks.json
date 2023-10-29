@@ -1,0 +1,49 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build part1",
+      "command": "make",
+      "type": "process",
+      "args": ["all"],
+      "options": {
+        "cwd": "${workspaceFolder:part1}"
+      },
+      "problemMatcher": ["$gcc"],
+      "group": "build"
+    },
+    {
+      "label": "Build part1 with debug mode",
+      "command": "make",
+      "type": "process",
+      "args": ["debug"],
+      "options": {
+        "cwd": "${workspaceFolder:part1}"
+      },
+      "problemMatcher": ["$gcc"],
+      "group": "build"
+    },
+    {
+      "label": "Clean part1",
+      "command": "make",
+      "type": "process",
+      "args": ["clean"],
+      "options": {
+        "cwd": "${workspaceFolder:part1}"
+      },
+      "group": "build"
+    },
+    {
+      "label": "Debug part1",
+      "dependsOn": ["Clean part1", "Build part1 with debug mode"],
+      "dependsOrder": "sequence",
+      "group": "build"
+    },
+    {
+      "label": "Run part1",
+      "dependsOn": ["Clean part1", "Build part1"],
+      "dependsOrder": "sequence",
+      "group": "test"
+    }
+  ]
+}

@@ -10,25 +10,12 @@
     "ghcr.io/devcontainers-contrib/features/starship:1": {},
     "ghcr.io/trunk-io/devcontainer-feature/trunk:1": {}
   },
-
-  // Features to add to the dev container. More info: https://containers.dev/features.
-  // "features": {},
-
-  // Use 'forwardPorts' to make a list of ports inside the container available locally.
-  // "forwardPorts": [],
-
-  // Use 'postCreateCommand' to run commands after the container is created.
   "postCreateCommand": "g++ -v && clang++ -v",
-
-  // Configure tool-specific properties.
-  // "customizations": {},
-
-  // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
   "remoteUser": "root",
   "updateContentCommand": "trunk install",
   "mounts": [
-    "source=profile,target=/root,type=volume",
-    "target=/root/.vscode-server,type=volume"
+    "source=${devcontainerId}-persistence,target=/persistence,type=volume",
+    "source=${localEnv:HOME}/.config/gh,target=/root/.config/gh,type=bind,consistency=cached"
   ],
   "customizations": {
     "vscode": {

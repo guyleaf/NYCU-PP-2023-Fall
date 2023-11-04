@@ -3,8 +3,6 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "simdxorshift128plus.h"
-
 double random_uniform_r(unsigned int *seedp)
 {
     return (double)rand_r(seedp) / RAND_MAX;

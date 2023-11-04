@@ -20,7 +20,7 @@ void *toss_darts_in_circle(void *args)
     thread_data_t *data = (thread_data_t *)args;
     ll number_of_tosses = data->number_of_tosses;
 
-    double partial_pi = 0;
+    ll *partial_pi = (ll *)calloc(1, sizeof(ll));
     double x, y;
     while (number_of_tosses > 0)
     {
@@ -31,19 +31,19 @@ void *toss_darts_in_circle(void *args)
         x = x * x + y * y;
         if (x <= CIRCLE_RADIUS)
         {
-            partial_pi++;
+            (*partial_pi)++;
         }
 
         number_of_tosses--;
     }
 
-    partial_pi = 4 * partial_pi / data->total_of_tosses;
+    // partial_pi = 4 * partial_pi / data->total_of_tosses;
 
-    pthread_mutex_lock(data->mutex);
-    (*data->pi) += partial_pi;
-    pthread_mutex_unlock(data->mutex);
+    // pthread_mutex_lock(data->mutex);
+    // (*data->pi) += partial_pi;
+    // pthread_mutex_unlock(data->mutex);
 
-    return NULL;
+    return (void *)partial_pi;
 }
 
 void allocate_threads(pthread_t **threads, thread_data_t **data,
@@ -113,15 +113,19 @@ double estimate_pi(int number_of_threads, ll total_of_tosses)
     }
 
     // join threads
+    ll *returnValue;
+    ll count = 0;
     for (i = 0; i < number_of_threads; i++)
     {
-        pthread_join(threads[i], NULL);
+        pthread_join(threads[i], (void **)&returnValue);
+        count += *returnValue;
+        free(returnValue);
     }
 
     free_threads(&threads, &data);
     pthread_mutex_destroy(&mutex);
 
-    return pi;
+    return 4 * count / (double)total_of_tosses;
 }
 
 void print_usage(const char *program_name)

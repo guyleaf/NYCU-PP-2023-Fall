@@ -1,8 +1,11 @@
+CXX=g++
+CXXFLAGS=-m64 -I./common -Iobjs/ -O3 -std=c++17 -Wall
 
-CXX=g++ -m64
-CXXFLAGS=-I./common -Iobjs/ -O3 -std=c++17 -Wall
+ifeq (/usr/bin/g++-10, $(wildcard /usr/bin/g++-10*))
+    CXX=g++-10
+endif
 
-APP_NAME=mandelbrot
+APP_NAME=mandelbrot.out
 OBJDIR=objs
 COMMONDIR=./common
 

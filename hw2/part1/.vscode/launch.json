@@ -5,8 +5,8 @@
       "type": "cppdbg",
       "request": "launch",
       "name": "Debug part1",
-      "program": "${workspaceFolder:part1}/myexp",
-      "args": ["-s", "1"],
+      "program": "${workspaceFolder:part1}/pthread/pi.out",
+      "args": ["5", "1000000000"],
       "cwd": "${workspaceFolder:part1}",
       "preLaunchTask": "Debug part1",
       "linux": {

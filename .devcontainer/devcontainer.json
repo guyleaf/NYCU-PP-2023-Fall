@@ -11,6 +11,7 @@
     "ghcr.io/trunk-io/devcontainer-feature/trunk:1": {}
   },
   "postCreateCommand": "g++ -v && clang++ -v",
+  // for rootless docker
   "remoteUser": "root",
   "updateContentCommand": "trunk install",
   "mounts": [

@@ -1,30 +1,32 @@
 FROM mcr.microsoft.com/devcontainers/cpp:1-ubuntu-20.04
 
-ARG REINSTALL_CMAKE_VERSION_FROM_SOURCE="3.22.2"
-
 ARG PERSISTENCE_DIR="/persistence"
 ARG BASH_HISTORY="${PERSISTENCE_DIR}/.bash_history"
 
-# Optionally install the cmake for vcpkg
-COPY ./reinstall-cmake.sh /tmp/
-
-RUN if [ "${REINSTALL_CMAKE_VERSION_FROM_SOURCE}" != "none" ]; then \
-        chmod +x /tmp/reinstall-cmake.sh && /tmp/reinstall-cmake.sh ${REINSTALL_CMAKE_VERSION_FROM_SOURCE}; \
-    fi \
-    && rm -f /tmp/reinstall-cmake.sh
-
-# [Optional] Uncomment this section to install additional vcpkg ports.
-# RUN su vscode -c "${VCPKG_ROOT}/vcpkg install <your-port-name-here>"
-
-# Use apt mirror site
-RUN sed -i -e "s/http:\/\/archive\.ubuntu\.com\/ubuntu\//http:\/\/ubuntu.cs.nctu.edu.tw\/ubuntu\//" /etc/apt/sources.list
+# Remove default vscode user and replace apt mirror site
+RUN deluser vscode --remove-all-files \
+    && sed -i -e "s/http:\/\/archive\.ubuntu\.com\/ubuntu\//http:\/\/ubuntu.cs.nctu.edu.tw\/ubuntu\//" /etc/apt/sources.list
 
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && apt-get -y install --no-install-recommends gcc-10 g++-10 clang-11 \
     && apt-get -y install --no-install-recommends linux-tools-$(uname -r) \
     && apt-get -y install --no-install-recommends tmux \
-    && apt-get clean \
+    && apt-get autoremove -y \
+    && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/*
+
+# Install hyperfine
+RUN wget --progress=dot:giga https://github.com/sharkdp/hyperfine/releases/download/v1.18.0/hyperfine-musl_1.18.0_amd64.deb \
+    && dpkg -i hyperfine-musl_1.18.0_amd64.deb \
+    && rm hyperfine-musl_1.18.0_amd64.deb
+
+# Set gcc-10, g++-10, clang-11 as default
+RUN rm /usr/bin/gcc /usr/bin/g++ /usr/bin/gcov /usr/bin/clang /usr/bin/clang++ \
+    && ln -s /usr/bin/gcc-10 /usr/bin/gcc \
+    && ln -s /usr/bin/g++-10 /usr/bin/g++ \
+    && ln -s /usr/bin/gcov-10 /usr/bin/gcov \
+    && ln -s /usr/bin/clang-11 /usr/bin/clang \
+    && ln -s /usr/bin/clang++-11 /usr/bin/clang++
 
 # Persist bash history
 RUN SNIPPET="export PROMPT_COMMAND='history -a' && export HISTFILE=${BASH_HISTORY}" \

@@ -1,8 +1,9 @@
+#include <pthread.h>
+
 #include <atomic>
 #include <cmath>
 #include <iostream>
 #include <string>
-#include <thread>
 #include <vector>
 
 #include "utility.hpp"

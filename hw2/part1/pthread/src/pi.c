@@ -10,9 +10,10 @@ typedef struct thread_data
 {
     ll number_of_tosses;
     ll total_of_tosses;
-    double *pi;
-    pthread_mutex_t *mutex;
 } thread_data_t;
+
+volatile double pi = 0;
+pthread_mutex_t mutex;
 
 void *toss_darts_in_circle(void *args)
 {
@@ -20,7 +21,7 @@ void *toss_darts_in_circle(void *args)
     thread_data_t *data = (thread_data_t *)args;
     ll number_of_tosses = data->number_of_tosses;
 
-    ll *partial_pi = (ll *)calloc(1, sizeof(ll));
+    double partial_pi = 0;
     double x, y;
     while (number_of_tosses > 0)
     {
@@ -31,19 +32,19 @@ void *toss_darts_in_circle(void *args)
         x = x * x + y * y;
         if (x <= CIRCLE_RADIUS)
         {
-            (*partial_pi)++;
+            partial_pi++;
         }
 
         number_of_tosses--;
     }
 
-    // partial_pi = 4 * partial_pi / data->total_of_tosses;
+    partial_pi = 4 * partial_pi / data->total_of_tosses;
 
-    // pthread_mutex_lock(data->mutex);
-    // (*data->pi) += partial_pi;
-    // pthread_mutex_unlock(data->mutex);
+    pthread_mutex_lock(&mutex);
+    pi += partial_pi;
+    pthread_mutex_unlock(&mutex);
 
-    return (void *)partial_pi;
+    return NULL;
 }
 
 void allocate_threads(pthread_t **threads, thread_data_t **data,
@@ -74,13 +75,10 @@ void free_threads(pthread_t **threads, thread_data_t **data)
 }
 
 void create_thread(pthread_t *thread, thread_data_t *data,
-                   ll number_of_tosses_per_thread, ll total_of_tosses,
-                   double *pi, pthread_mutex_t *mutex)
+                   ll number_of_tosses_per_thread, ll total_of_tosses)
 {
     data->number_of_tosses = number_of_tosses_per_thread;
     data->total_of_tosses = total_of_tosses;
-    data->pi = pi;
-    data->mutex = mutex;
     if (pthread_create(thread, NULL, toss_darts_in_circle, (void *)data) != 0)
     {
         perror("Failed to create thread.");
@@ -91,9 +89,9 @@ void create_thread(pthread_t *thread, thread_data_t *data,
 double estimate_pi(int number_of_threads, ll total_of_tosses)
 {
     int i;
-    double pi = 0;
+    // double pi = 0;
 
-    pthread_mutex_t mutex;
+    // pthread_mutex_t mutex;
     pthread_mutex_init(&mutex, NULL);
 
     pthread_t *threads = NULL;
@@ -109,23 +107,19 @@ double estimate_pi(int number_of_threads, ll total_of_tosses)
             number_of_tosses_per_thread += total_of_tosses % number_of_threads;
         }
         create_thread(&threads[i], &data[i], number_of_tosses_per_thread,
-                      total_of_tosses, &pi, &mutex);
+                      total_of_tosses);
     }
 
     // join threads
-    ll *returnValue;
-    ll count = 0;
     for (i = 0; i < number_of_threads; i++)
     {
-        pthread_join(threads[i], (void **)&returnValue);
-        count += *returnValue;
-        free(returnValue);
+        pthread_join(threads[i], NULL);
     }
 
     free_threads(&threads, &data);
     pthread_mutex_destroy(&mutex);
 
-    return 4 * count / (double)total_of_tosses;
+    return pi;
 }
 
 void print_usage(const char *program_name)

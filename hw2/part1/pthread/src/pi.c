@@ -36,7 +36,7 @@ void *toss_darts_in_circle(void *args)
         number_of_tosses--;
     }
 
-    ll *result = (ll *)malloc(sizeof(ll));
+    double *result = (double *)malloc(sizeof(double));
     *result = 4 * partial_pi / total_of_tosses;
     return (void *)result;
 }
@@ -101,7 +101,7 @@ double estimate_pi(int number_of_threads, ll total_of_tosses)
     }
 
     // join threads
-    ll *result;
+    double *result;
     double pi = 0;
     for (i = 0; i < number_of_threads; i++)
     {

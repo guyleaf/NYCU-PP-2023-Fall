@@ -16,9 +16,42 @@ typedef struct
     int numThreads;
 } WorkerArgs;
 
-extern void mandelbrotSerial(float x0, float y0, float x1, float y1, int width,
-                             int height, int startRow, int numRows,
-                             int maxIterations, int output[]);
+static inline int _mandel(float c_re, float c_im, int count)
+{
+    float z_re = c_re, z_im = c_im;
+    int i;
+    for (i = 0; i < count; ++i)
+    {
+        if (z_re * z_re + z_im * z_im > 4.f) break;
+
+        float new_re = z_re * z_re - z_im * z_im;
+        float new_im = 2.f * z_re * z_im;
+        z_re = c_re + new_re;
+        z_im = c_im + new_im;
+    }
+
+    return i;
+}
+
+void _mandelbrotThread(float x0, float y0, float x1, float y1, int width,
+                       int height, int startRow, int step, int maxIterations,
+                       int output[])
+{
+    float dx = (x1 - x0) / width;
+    float dy = (y1 - y0) / height;
+
+    for (int j = startRow; j < height; j += step)
+    {
+        for (int i = 0; i < width; ++i)
+        {
+            float x = x0 + i * dx;
+            float y = y0 + j * dy;
+
+            int index = (j * width + i);
+            output[index] = _mandel(x, y, maxIterations);
+        }
+    }
+}
 
 //
 // workerThreadStart --
@@ -34,18 +67,15 @@ void workerThreadStart(WorkerArgs *const args)
     // Of course, you can copy mandelbrotSerial() to this file and
     // modify it to pursue a better performance.
 
-    printf("Hello world from thread %d\n", args->threadId);
+    // double startTime = CycleTimer::currentSeconds();
 
-    int totalRows = args->height / args->numThreads;
-    int startRow = args->threadId * totalRows;
-    if (args->threadId == args->numThreads - 1)
-    {
-        totalRows += args->height % args->numThreads;
-    }
+    _mandelbrotThread(args->x0, args->y0, args->x1, args->y1, args->width,
+                      args->height, args->threadId, args->numThreads,
+                      args->maxIterations, args->output);
 
-    mandelbrotSerial(args->x0, args->y0, args->x1, args->y1, args->width,
-                     args->height, startRow, totalRows, args->maxIterations,
-                     args->output);
+    // double endTime = CycleTimer::currentSeconds();
+    // printf("[Thread-%d]:\t\t[%.3f] ms\n", args->threadId, (endTime -
+    // startTime) * 1000);
 }
 
 //

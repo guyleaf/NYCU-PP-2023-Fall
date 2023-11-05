@@ -15,13 +15,16 @@ PPM_OBJ=$(addprefix $(OBJDIR)/, $(subst $(COMMONDIR)/,, $(PPM_CXX:.cpp=.o)))
 
 default: $(APP_NAME)
 
+debug: CXXFLAGS += -g
+debug: $(APP_NAME)
+
 .PHONY: dirs clean
 
 dirs:
 		/bin/mkdir -p $(OBJDIR)/
 
 clean:
-		/bin/rm -rf $(OBJDIR) *.ppm *~ $(APP_NAME)
+		/bin/rm -rf $(OBJDIR) *.ppm *.png *~ $(APP_NAME) *.data*
 
 OBJS=$(OBJDIR)/main.o $(OBJDIR)/mandelbrotSerial.o $(OBJDIR)/mandelbrotThread.o $(PPM_OBJ)
 

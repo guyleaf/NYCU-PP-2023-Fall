@@ -10,10 +10,11 @@
     "ghcr.io/devcontainers-contrib/features/starship:1": {},
     "ghcr.io/trunk-io/devcontainer-feature/trunk:1": {}
   },
-  "postCreateCommand": "g++ -v && clang++ -v",
+  "runArgs": ["--cpuset-cpus=0-19"],
+  "postCreateCommand": "g++ -v && printf '\n' && clang++ -v",
   // for rootless docker
   "remoteUser": "root",
-  "updateContentCommand": "trunk install",
+  "updateContentCommand": "trunk install --ci",
   "mounts": [
     "source=${devcontainerId}-persistence,target=/persistence,type=volume",
     "source=${localEnv:HOME}/.config/gh,target=/root/.config/gh,type=bind,consistency=cached"

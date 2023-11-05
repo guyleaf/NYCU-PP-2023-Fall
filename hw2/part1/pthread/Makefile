@@ -9,7 +9,7 @@ ifeq (/usr/bin/gcc-10, $(wildcard /usr/bin/gcc-10*))
     C=gcc-10
 endif
 
-all: CFLAGS += -O3 -mavx2
+all: CFLAGS += -O3 -mavx2 -march=native
 all: $(EXE)
 
 debug: CFLAGS += -g -Wextra -Wno-deprecated-declarations -fsanitize=address -fdiagnostics-color=always

@@ -68,11 +68,8 @@ void free_threads(pthread_t **threads, thread_data_t **data)
     *data = NULL;
 }
 
-void create_thread(pthread_t *thread, thread_data_t *data,
-                   ll number_of_tosses_per_thread, ll total_of_tosses)
+void create_thread(pthread_t *thread, thread_data_t *data)
 {
-    data->number_of_tosses = number_of_tosses_per_thread;
-    data->total_of_tosses = total_of_tosses;
     if (pthread_create(thread, NULL, toss_darts_in_circle, (void *)data) != 0)
     {
         perror("Failed to create thread.");
@@ -83,6 +80,8 @@ void create_thread(pthread_t *thread, thread_data_t *data,
 double estimate_pi(int number_of_threads, ll total_of_tosses)
 {
     int i;
+    double pi;
+    double *result = NULL;
 
     pthread_t *threads = NULL;
     thread_data_t *data = NULL;
@@ -90,20 +89,26 @@ double estimate_pi(int number_of_threads, ll total_of_tosses)
 
     // create threads
     ll number_of_tosses_per_thread = total_of_tosses / number_of_threads;
-    for (i = 0; i < number_of_threads; i++)
+    for (i = 1; i < number_of_threads; i++)
     {
+        data[i].number_of_tosses = number_of_tosses_per_thread;
+        data[i].total_of_tosses = total_of_tosses;
         if (i == number_of_threads - 1)
         {
-            number_of_tosses_per_thread += total_of_tosses % number_of_threads;
+            data[i].number_of_tosses += total_of_tosses % number_of_threads;
         }
-        create_thread(&threads[i], &data[i], number_of_tosses_per_thread,
-                      total_of_tosses);
+        create_thread(&threads[i], &data[i]);
     }
 
+    // main thread is also a worker
+    data->number_of_tosses = number_of_tosses_per_thread;
+    data->total_of_tosses = total_of_tosses;
+    result = (double *)toss_darts_in_circle((void *)data);
+    pi = *result;
+    free(result);
+
     // join threads
-    double *result;
-    double pi = 0;
-    for (i = 0; i < number_of_threads; i++)
+    for (i = 1; i < number_of_threads; i++)
     {
         pthread_join(threads[i], (void **)&result);
         pi += *result;

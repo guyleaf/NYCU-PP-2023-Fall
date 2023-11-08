@@ -9,70 +9,43 @@
 typedef struct thread_data
 {
     ll number_of_tosses;
-    ll total_of_tosses;
+    double pi_factor;
 } thread_data_t;
 
 void *toss_darts_in_circle(void *args)
 {
-    unsigned int seed = time(NULL);
     thread_data_t *data = (thread_data_t *)args;
+    unsigned int seed = pthread_self();
     ll number_of_tosses = data->number_of_tosses;
-    ll total_of_tosses = data->total_of_tosses;
 
-    double partial_pi = 0;
     double x, y;
+    double *partial_pi = (double *)calloc(1, sizeof(double));
     while (number_of_tosses > 0)
     {
         // toss dart randomly
-        x = random_uniform_r(&seed);
-        y = random_uniform_r(&seed);
+        x = (double)rand_r(&seed) / RAND_MAX;
+        y = (double)rand_r(&seed) / RAND_MAX;
 
         x = x * x + y * y;
         if (x <= CIRCLE_RADIUS)
         {
-            partial_pi++;
+            (*partial_pi)++;
         }
 
         number_of_tosses--;
     }
 
-    double *result = (double *)malloc(sizeof(double));
-    *result = 4 * partial_pi / total_of_tosses;
-    return (void *)result;
+    (*partial_pi) *= data->pi_factor;
+    return (void *)partial_pi;
 }
 
-void allocate_threads(pthread_t **threads, thread_data_t **data,
-                      int number_of_threads)
+void allocate_threads(pthread_t **threads, int number_of_threads)
 {
     // dynamic allocate threads and data
     *threads = (pthread_t *)malloc(sizeof(pthread_t) * number_of_threads);
     if (threads == NULL)
     {
         perror("Failed to allocate memory for threads.");
-        exit(1);
-    }
-
-    *data = (thread_data_t *)malloc(sizeof(thread_data_t) * number_of_threads);
-    if (data == NULL)
-    {
-        perror("Failed to allocate memory for thread data.");
-        exit(1);
-    }
-}
-
-void free_threads(pthread_t **threads, thread_data_t **data)
-{
-    free(*threads);
-    free(*data);
-    *threads = NULL;
-    *data = NULL;
-}
-
-void create_thread(pthread_t *thread, thread_data_t *data)
-{
-    if (pthread_create(thread, NULL, toss_darts_in_circle, (void *)data) != 0)
-    {
-        perror("Failed to create thread.");
         exit(1);
     }
 }
@@ -83,39 +56,48 @@ double estimate_pi(int number_of_threads, ll total_of_tosses)
     double pi;
     double *result = NULL;
 
-    pthread_t *threads = NULL;
-    thread_data_t *data = NULL;
-    allocate_threads(&threads, &data, number_of_threads);
+    thread_data_t data = {
+        .number_of_tosses = total_of_tosses / number_of_threads,
+        .pi_factor = 4.0 / total_of_tosses};
+    thread_data_t main_thread_data = {
+        .number_of_tosses =
+            data.number_of_tosses + total_of_tosses % number_of_threads,
+        .pi_factor = data.pi_factor};
+
+    // allocate threads
+    pthread_t *threads =
+        (pthread_t *)malloc(sizeof(pthread_t) * number_of_threads - 1);
+    if (threads == NULL)
+    {
+        perror("Failed to allocate memory for threads.");
+        exit(1);
+    }
 
     // create threads
-    ll number_of_tosses_per_thread = total_of_tosses / number_of_threads;
-    for (i = 1; i < number_of_threads; i++)
+    for (i = 0; i < number_of_threads - 1; i++)
     {
-        data[i].number_of_tosses = number_of_tosses_per_thread;
-        data[i].total_of_tosses = total_of_tosses;
-        if (i == number_of_threads - 1)
+        if (pthread_create(&threads[i], NULL, toss_darts_in_circle,
+                           (void *)&data) != 0)
         {
-            data[i].number_of_tosses += total_of_tosses % number_of_threads;
+            perror("Failed to create thread.");
+            exit(1);
         }
-        create_thread(&threads[i], &data[i]);
     }
 
     // main thread is also a worker
-    data->number_of_tosses = number_of_tosses_per_thread;
-    data->total_of_tosses = total_of_tosses;
-    result = (double *)toss_darts_in_circle((void *)data);
+    result = (double *)toss_darts_in_circle((void *)&main_thread_data);
     pi = *result;
     free(result);
 
     // join threads
-    for (i = 1; i < number_of_threads; i++)
+    for (i = 0; i < number_of_threads - 1; i++)
     {
         pthread_join(threads[i], (void **)&result);
         pi += *result;
         free(result);
     }
 
-    free_threads(&threads, &data);
+    free(threads);
     return pi;
 }
 

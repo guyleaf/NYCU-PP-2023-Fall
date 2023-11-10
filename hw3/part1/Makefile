@@ -15,10 +15,10 @@ OBJS = cg_impl.o \
        ${COMMON}/wtime.o
 
 ${PROGRAMNAME}: config ${PROGRAMNAME}.o ${OBJS}
-	${CLINK} ${CLINKFLAGS} -Wl,--allow-multiple-definition -o ${PROGRAMNAME} ${PROGRAMNAME}.o ${OBJS} ${C_LIB}
+	${CLINK} ${CLINKFLAGS} -Wl,--allow-multiple-definition -o ${PROGRAMNAME}.out ${PROGRAMNAME}.o ${OBJS} ${C_LIB}
 
 grade: config grade.o ${OBJS}
-	${CLINK} ${CLINKFLAGS} -Wl,--allow-multiple-definition -o cg_grader grade.o ${OBJS} ref_cg.a def_cg.a ${C_LIB}
+	${CLINK} ${CLINKFLAGS} -Wl,--allow-multiple-definition -o cg_grader.out grade.o ${OBJS} ref_cg.a def_cg.a ${C_LIB}
 
 .c.o:
 	${CCOMPILE} $< -D${DATASIZE}
@@ -29,4 +29,4 @@ cg_impl.o:	cg_impl.c  globals.h
 clean:
 	- rm -f *.o *~
 	rm -f ${COMMON}/*.o
-	rm -f ${PROGRAMNAME} cg_grader
+	rm -f ${PROGRAMNAME}.out cg_grader.out

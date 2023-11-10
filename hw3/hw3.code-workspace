@@ -69,7 +69,9 @@
         "pthread.h": "c",
         "simdxorshift128plus.h": "c",
         "utility.h": "c",
-        "stdint.h": "c"
+        "stdint.h": "c",
+        "cg_impl.h": "c",
+        "omp.h": "c"
     },
     "C_Cpp.default.cStandard": "gnu17",
     "C_Cpp.default.cppStandard": "c++17"

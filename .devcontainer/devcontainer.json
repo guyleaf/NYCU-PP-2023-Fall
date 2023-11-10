@@ -11,6 +11,9 @@
     "ghcr.io/trunk-io/devcontainer-feature/trunk:1": {}
   },
   "runArgs": ["--cpuset-cpus=0-19"],
+  "containerEnv": {
+    "OMP_NUM_THREADS": "4"
+  },
   "postCreateCommand": "g++ -v && printf '\n' && clang++ -v",
   // for rootless docker
   "remoteUser": "root",

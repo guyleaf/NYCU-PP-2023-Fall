@@ -20,7 +20,8 @@
   "updateContentCommand": "trunk install --ci",
   "mounts": [
     "source=${devcontainerId}-persistence,target=/persistence,type=volume",
-    "source=${localEnv:HOME}/.config/gh,target=/root/.config/gh,type=bind,consistency=cached"
+    "source=${localEnv:HOME}/.config/gh,target=/root/.config/gh,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/data/NYCU-PP-2023-Fall,target=/data,type=bind,consistency=cached"
   ],
   "customizations": {
     "vscode": {
@@ -53,7 +54,8 @@
         "ms-vscode.cpptools-themes",
         "emilast.LogFileHighlighter",
         "bpruitt-goddard.mermaid-markdown-syntax-highlighting",
-        "Percy.vscode-numpy-viewer"
+        "Percy.vscode-numpy-viewer",
+        "ms-vscode.makefile-tools"
       ]
     }
   }

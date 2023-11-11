@@ -85,3 +85,5 @@ dkms.conf
 # End of https://www.toptal.com/developers/gitignore/api/c++,c,cuda
 
 *.zip
+*.data
+*.data.*

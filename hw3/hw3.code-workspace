@@ -1,12 +1,15 @@
 {
   "folders": [
     {
-      "path": "part1"
+        "path": "part1"
     },
     {
-      "path": "part2"
+        "path": "part2"
+    },
+    {
+        "path": "../../../data/hw3"
     }
-  ],
+],
   "settings": {
     "editor.detectIndentation": false,
     "files.associations": {
@@ -73,7 +76,7 @@
         "cg_impl.h": "c",
         "omp.h": "c"
     },
-    "C_Cpp.default.cStandard": "gnu17",
+    "C_Cpp.default.cStandard": "c17",
     "C_Cpp.default.cppStandard": "c++17"
   }
 }

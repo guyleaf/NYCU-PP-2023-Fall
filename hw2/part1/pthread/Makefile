@@ -1,15 +1,15 @@
-C := gcc
+C := clang
 CFLAGS := -m64 -std=gnu17 -Iinclude -Wall
 
 EXE := pi.out
 SRCS := $(wildcard src/*.c)
 OBJS := $(SRCS:%.c=%.o)
 
-ifeq (/usr/bin/gcc-10, $(wildcard /usr/bin/gcc-10*))
-    C=gcc-10
+ifeq (/usr/bin/clang-11, $(wildcard /usr/bin/clang-11*))
+    C=clang-11
 endif
 
-all: CFLAGS += -O3 -mavx2 -march=native
+all: CFLAGS += -O3 -mavx2 -march=native -ffast-math
 all: $(EXE)
 
 debug: CFLAGS += -g -Wextra -Wno-deprecated-declarations -fsanitize=address -fdiagnostics-color=always

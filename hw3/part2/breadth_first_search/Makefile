@@ -2,7 +2,7 @@ CPPFLAGS := -I../ -std=c++17 -fopenmp -O3
 
 all: default grade
 
-debug: CPPFLAGS += -g -DDEBUG -DVERBOSE
+debug: CPPFLAGS += -g -DDEBUG -DVERBOSE -Wextra -Wno-deprecated-declarations -fsanitize=address -fdiagnostics-color=always
 debug: default grade
 
 default: main.cpp bfs.cpp

@@ -7,11 +7,13 @@
 
 #include <cstddef>
 
-#include "../common/CycleTimer.h"
-#include "../common/graph.h"
+#include "common/CycleTimer.h"
+#include "common/graph.h"
 
 #define ROOT_NODE_ID 0
 #define NOT_VISITED_MARKER -1
+
+using ull = unsigned long long;
 
 void vertex_set_clear(vertex_set *list) { list->count = 0; }
 
@@ -28,9 +30,11 @@ void vertex_set_init(vertex_set *list, int count)
 void top_down_step(Graph g, vertex_set *frontier, vertex_set *new_frontier,
                    int *distances)
 {
+#pragma omp parallel for
     for (int i = 0; i < frontier->count; i++)
     {
         int node = frontier->vertices[i];
+        int node_distance = distances[node];
 
         int start_edge = g->outgoing_starts[node];
         int end_edge = (node == g->num_nodes - 1)
@@ -42,10 +46,11 @@ void top_down_step(Graph g, vertex_set *frontier, vertex_set *new_frontier,
         {
             int outgoing = g->outgoing_edges[neighbor];
 
-            if (distances[outgoing] == NOT_VISITED_MARKER)
+            if (__sync_bool_compare_and_swap(&distances[outgoing],
+                                             NOT_VISITED_MARKER,
+                                             node_distance + 1))
             {
-                distances[outgoing] = distances[node] + 1;
-                int index = new_frontier->count++;
+                int index = __sync_fetch_and_add(&new_frontier->count, 1);
                 new_frontier->vertices[index] = outgoing;
             }
         }

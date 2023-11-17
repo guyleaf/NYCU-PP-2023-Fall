@@ -2,7 +2,7 @@ CPPFLAGS := -I../ -std=c++17 -fopenmp -O3
 
 all: default grade
 
-debug: CPPFLAGS += -g
+debug: CPPFLAGS += -g -DDEBUG
 debug: default grade
 
 default: page_rank.cpp main.cpp

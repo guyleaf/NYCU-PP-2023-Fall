@@ -1,0 +1,9 @@
+TOPTARGETS := all clean
+
+SUBDIRS := part1 part2
+
+$(TOPTARGETS): $(SUBDIRS)
+$(SUBDIRS):
+	$(MAKE) -C $@ $(MAKECMDGOALS)
+
+.PHONY: $(TOPTARGETS) $(SUBDIRS)

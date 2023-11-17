@@ -1,4 +1,4 @@
-#include "../common/grade.h"
+#include "common/grade.h"
 
 #include <omp.h>
 #include <stdio.h>
@@ -11,9 +11,9 @@
 #include <string>
 #include <vector>
 
-#include "../common/CycleTimer.h"
-#include "../common/graph.h"
 #include "bfs.h"
+#include "common/CycleTimer.h"
+#include "common/graph.h"
 
 #define USE_BINARY_GRAPH 1
 

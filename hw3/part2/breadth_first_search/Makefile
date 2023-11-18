@@ -1,16 +1,16 @@
+VERBOSE := 0
+SANITIZE := 0
 CPPFLAGS := -I../ -std=c++17 -fopenmp -O3
 
 all: default grade
 
+debug: CPPFLAGS += -g -Wextra -Wno-deprecated-declarations
 ifeq ($(VERBOSE),1)
 	CPPFLAGS += -DDEBUG -DVERBOSE
 endif
-
 ifeq ($(SANITIZE),1)
 	CPPFLAGS += -fsanitize=address -fdiagnostics-color=always
 endif
-
-debug: CPPFLAGS += -g -Wextra -Wno-deprecated-declarations
 debug: default grade
 
 default: main.cpp bfs.cpp

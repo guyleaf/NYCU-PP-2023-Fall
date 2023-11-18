@@ -243,6 +243,11 @@ int main(int argc, char** argv)
         std::cout << std::endl
                   << "Speedup vs. Reference: " << std::endl
                   << relative_timing.str();
+
+        free(sol1.distances);
+        free(sol2.distances);
+        free(sol3.distances);
+        free(sol4.distances);
     }
     // Run the code with only one thread count and only report speedup
     else
@@ -361,6 +366,11 @@ int main(int argc, char** argv)
         std::cout << "Reference: Timing Summary" << std::endl;
         std::cout << ref_timing.str();
         printf("----------------------------------------------------------\n");
+
+        free(sol1.distances);
+        free(sol2.distances);
+        free(sol3.distances);
+        free(sol4.distances);
     }
 
     free_graph(g);

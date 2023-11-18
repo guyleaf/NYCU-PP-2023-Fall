@@ -235,19 +235,29 @@ void bfs_hybrid(Graph graph, solution *sol)
 
         // reference:
         // https://github.com/gbossi/Pagerank-DOBFS/blob/master/parallel_dobfs.cpp
+        // it has a little bit different implementation from the paper
+
         int new_frontier_size = frontier.count;
         float frontier_growing_ratio =
             (float)(new_frontier_size - frontier_size) / frontier_size;
 
+        // remove number of visited vertices from size of graph
         size_of_graph -= new_frontier_size;
+
+        // if choose top down previsously, and the frontier growing ratio is
+        // increasing
         if (choose_top_down && frontier_growing_ratio > 0)
         {
             choose_top_down =
                 (new_frontier_size * frontier_growing_ratio <=
                  (size_of_graph * frontier_growing_ratio) / ALPHA);
         }
+        // if choose bottom up previsously, and the frontier growing ratio is
+        // decreasing
         else if (!choose_top_down && frontier_growing_ratio < 0)
         {
+            // I think the repo is wrong. It should take new frontier size
+            // instead of the old one
             choose_top_down = (new_frontier_size < (float)size_of_graph / BETA);
         }
 

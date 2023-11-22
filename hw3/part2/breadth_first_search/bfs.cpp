@@ -28,14 +28,14 @@ struct _vertex_set
 // follow all outgoing edges, and add all neighboring vertices to the
 // new_frontier.
 void top_down_step(Graph g, _vertex_set *frontier, int *distances,
-                   int current_iter)
+                   int current_level)
 {
     int new_frontier_count = 0;
 
 #pragma omp parallel for reduction(+ : new_frontier_count)
     for (int node = 0; node < g->num_nodes; node++)
     {
-        if (frontier->vertices[node] == current_iter)
+        if (frontier->vertices[node] == current_level)
         {
             int start_edge = g->outgoing_starts[node];
             int end_edge = (node == g->num_nodes - 1)
@@ -50,7 +50,10 @@ void top_down_step(Graph g, _vertex_set *frontier, int *distances,
                 if (frontier->vertices[outgoing] == NOT_VISITED_MARKER)
                 {
                     distances[outgoing] = distances[node] + 1;
-                    frontier->vertices[outgoing] = current_iter + 1;
+                    frontier->vertices[outgoing] = current_level + 1;
+                    // the outgoing node may be checked by multiple threads at
+                    // the same time the approximation is not precise, but it is
+                    // ok
                     new_frontier_count++;
                 }
             }
@@ -79,8 +82,8 @@ void bfs_top_down(Graph graph, solution *sol)
     }
 
     // setup frontier edges with the root node
-    int current_iter = 0;
-    frontier.vertices[ROOT_NODE_ID] = current_iter;
+    int current_level = 0;
+    frontier.vertices[ROOT_NODE_ID] = current_level;
     frontier.count++;
 
     sol->distances[ROOT_NODE_ID] = 0;
@@ -91,21 +94,21 @@ void bfs_top_down(Graph graph, solution *sol)
         double start_time = CycleTimer::currentSeconds();
 #endif
 
-        top_down_step(graph, &frontier, sol->distances, current_iter);
+        top_down_step(graph, &frontier, sol->distances, current_level);
 
 #ifdef VERBOSE
         double end_time = CycleTimer::currentSeconds();
-        printf("iter=%d %.4f sec\n", current_iter, end_time - start_time);
+        printf("iter=%d %.4f sec\n", current_level, end_time - start_time);
 #endif
 
-        current_iter++;
+        current_level++;
     } while (frontier.count != 0);
 
     free(frontier.vertices);
 }
 
 void bottom_up_step(Graph g, _vertex_set *frontier, int *distances,
-                    int current_iter)
+                    int current_level)
 {
     int new_frontier_count = 0;
 
@@ -123,10 +126,10 @@ void bottom_up_step(Graph g, _vertex_set *frontier, int *distances,
             for (int neighbor = start_edge; neighbor < end_edge; neighbor++)
             {
                 int incoming = g->incoming_edges[neighbor];
-                if (frontier->vertices[incoming] == current_iter)
+                if (frontier->vertices[incoming] == current_level)
                 {
                     distances[node] = distances[incoming] + 1;
-                    frontier->vertices[node] = current_iter + 1;
+                    frontier->vertices[node] = current_level + 1;
                     new_frontier_count++;
                     break;
                 }
@@ -164,8 +167,8 @@ void bfs_bottom_up(Graph graph, solution *sol)
     }
 
     // setup frontier edges with the root node
-    int current_iter = 0;
-    frontier.vertices[ROOT_NODE_ID] = current_iter;
+    int current_level = 0;
+    frontier.vertices[ROOT_NODE_ID] = current_level;
     frontier.count++;
 
     sol->distances[ROOT_NODE_ID] = 0;
@@ -176,14 +179,14 @@ void bfs_bottom_up(Graph graph, solution *sol)
         double start_time = CycleTimer::currentSeconds();
 #endif
 
-        bottom_up_step(graph, &frontier, sol->distances, current_iter);
+        bottom_up_step(graph, &frontier, sol->distances, current_level);
 
 #ifdef VERBOSE
         double end_time = CycleTimer::currentSeconds();
-        printf("iter=%d %.4f sec\n", current_iter, end_time - start_time);
+        printf("iter=%d %.4f sec\n", current_level, end_time - start_time);
 #endif
 
-        current_iter++;
+        current_level++;
     } while (frontier.count != 0);
 
     free(frontier.vertices);
@@ -209,8 +212,8 @@ void bfs_hybrid(Graph graph, solution *sol)
     }
 
     // setup frontier edges with the root node
-    int current_iter = 0;
-    frontier.vertices[ROOT_NODE_ID] = current_iter;
+    int current_level = 0;
+    frontier.vertices[ROOT_NODE_ID] = current_level;
     frontier.count++;
 
     sol->distances[ROOT_NODE_ID] = 0;
@@ -222,15 +225,16 @@ void bfs_hybrid(Graph graph, solution *sol)
 #ifdef VERBOSE
         double start_time = CycleTimer::currentSeconds();
 #endif
+
         int frontier_size = frontier.count;
 
         if (choose_top_down)
         {
-            top_down_step(graph, &frontier, sol->distances, current_iter);
+            top_down_step(graph, &frontier, sol->distances, current_level);
         }
         else
         {
-            bottom_up_step(graph, &frontier, sol->distances, current_iter);
+            bottom_up_step(graph, &frontier, sol->distances, current_level);
         }
 
         // reference:
@@ -238,23 +242,21 @@ void bfs_hybrid(Graph graph, solution *sol)
         // it has a little bit different implementation from the paper
 
         int new_frontier_size = frontier.count;
-        float frontier_growing_ratio =
-            (float)(new_frontier_size - frontier_size) / frontier_size;
+        int frontier_growing_rate = new_frontier_size - frontier_size;
 
         // remove number of visited vertices from size of graph
         size_of_graph -= new_frontier_size;
 
-        // if choose top down previsously, and the frontier growing ratio is
+        // if choose top down previsously, and the frontier growing rate is
         // increasing
-        if (choose_top_down && frontier_growing_ratio > 0)
+        if (choose_top_down && frontier_growing_rate > 0)
         {
             choose_top_down =
-                (new_frontier_size * frontier_growing_ratio <=
-                 (size_of_graph * frontier_growing_ratio) / ALPHA);
+                (new_frontier_size <= (float)size_of_graph / ALPHA);
         }
-        // if choose bottom up previsously, and the frontier growing ratio is
+        // if choose bottom up previsously, and the frontier growing rate is
         // decreasing
-        else if (!choose_top_down && frontier_growing_ratio < 0)
+        else if (!choose_top_down && frontier_growing_rate < 0)
         {
             // I think the repo is wrong. It should take new frontier size
             // instead of the old one
@@ -263,10 +265,10 @@ void bfs_hybrid(Graph graph, solution *sol)
 
 #ifdef VERBOSE
         double end_time = CycleTimer::currentSeconds();
-        printf("iter=%d %.4f sec\n", current_iter, end_time - start_time);
+        printf("iter=%d %.4f sec\n", current_level, end_time - start_time);
 #endif
 
-        current_iter++;
+        current_level++;
     } while (frontier.count != 0);
 
     free(frontier.vertices);

@@ -124,14 +124,14 @@ void bfs_top_down(Graph graph, solution *sol)
 void bottom_up_step(Graph g, _vertex_set *frontier, _vertex_set *new_frontier,
                     int *distances)
 {
-    // reset all vertices in the new frontier
-    memset(new_frontier->vertices, 0, g->num_nodes * sizeof(bool));
-
     int new_frontier_count = 0;
 
-#pragma omp parallel for reduction(+ : new_frontier_count)
+#pragma omp parallel for schedule(static, 64) reduction(+ : new_frontier_count)
     for (int node = 0; node < g->num_nodes; node++)
     {
+        // reset all vertices in the new frontier
+        new_frontier->vertices[node] = false;
+
         if (distances[node] == NOT_VISITED_MARKER)
         {
             int start_edge = g->incoming_starts[node];

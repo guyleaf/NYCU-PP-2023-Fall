@@ -11,7 +11,7 @@ RUN deluser vscode --remove-all-files \
     && sed -i -e "s/http:\/\/archive\.ubuntu\.com\/ubuntu\//http:\/\/ubuntu.cs.nctu.edu.tw\/ubuntu\//" /etc/apt/sources.list
 
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-    && apt-get -y install --no-install-recommends gcc-10 g++-10 clang-11 \
+    && apt-get -y install --no-install-recommends gcc-10 g++-10 clang-11 libomp5 \
     && apt-get -y install --no-install-recommends linux-tools-$(uname -r) \
     && apt-get -y install --no-install-recommends tmux imagemagick stress cpulimit gnuplot-nox \
     && apt-get autoremove -y \

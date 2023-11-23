@@ -54,8 +54,7 @@
         "ms-vscode.cpptools-themes",
         "emilast.LogFileHighlighter",
         "bpruitt-goddard.mermaid-markdown-syntax-highlighting",
-        "Percy.vscode-numpy-viewer",
-        "ms-vscode.makefile-tools"
+        "Percy.vscode-numpy-viewer"
       ]
     }
   }

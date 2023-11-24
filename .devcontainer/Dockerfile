@@ -3,7 +3,6 @@ FROM mcr.microsoft.com/devcontainers/cpp:1-ubuntu-20.04
 ARG PERSISTENCE_DIR="/persistence"
 ARG BASH_HISTORY="${PERSISTENCE_DIR}/.bash_history"
 ARG XDG_CACHE_HOME="${PERSISTENCE_DIR}/.cache"
-ARG SSH_DIR="${PERSISTENCE_DIR}/.ssh"
 
 WORKDIR /tmp
 
@@ -42,5 +41,4 @@ WORKDIR /tmp
 # Persist bash history and others
 RUN SNIPPET="export PROMPT_COMMAND='history -a' && export HISTFILE=${BASH_HISTORY}" \
     && echo "$SNIPPET" >> "$HOME/.bashrc" \
-    && echo "export XDG_CACHE_HOME=${XDG_CACHE_HOME}" >> "$HOME/.bashrc" \
-    && mkdir -p "${SSH_DIR}" && ln -s "${SSH_DIR}" "$HOME/.ssh"
+    && echo "export XDG_CACHE_HOME=${XDG_CACHE_HOME}" >> "$HOME/.bashrc"

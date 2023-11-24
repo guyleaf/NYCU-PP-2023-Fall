@@ -65,6 +65,14 @@
         "chrono": "cpp",
         "ratio": "cpp",
         "stop_token": "cpp",
+        "stdlib.h": "c",
+        "pthread.h": "c",
+        "simdxorshift128plus.h": "c",
+        "utility.h": "c",
+        "stdint.h": "c",
+        "cg_impl.h": "c",
+        "omp.h": "c",
+        "map": "cpp"
     },
     "C_Cpp.default.cStandard": "c17",
     "C_Cpp.default.cppStandard": "c++17"

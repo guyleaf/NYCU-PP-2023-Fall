@@ -10,7 +10,7 @@ long long int estimate_tosses_in_circle(long long int tosses)
     long long int number_in_circle = 0;
     double x, y, distance_squared;
 
-    for (long long int toss = 0; toss < tosses; toss++)
+    while (tosses > 0)
     {
         x = (double)rand() / RAND_MAX;
         y = (double)rand() / RAND_MAX;
@@ -19,6 +19,7 @@ long long int estimate_tosses_in_circle(long long int tosses)
         {
             number_in_circle++;
         }
+        tosses--;
     }
 
     return number_in_circle;
@@ -57,19 +58,20 @@ int main(int argc, char **argv)
 
     if (world_rank == 0)
     {
-        MPI_Status status;
+        // MPI_Status status;
 
         // process PI result
         long long int partial_tosses;
         for (int rank = 1; rank < world_size; rank++)
         {
             MPI_Recv(&partial_tosses, 1, MPI_LONG_LONG_INT, rank, 0,
-                     MPI_COMM_WORLD, &status);
-            if (status.MPI_ERROR != MPI_SUCCESS)
-            {
-                printf("MPI_Recv error\n");
-                MPI_Abort(MPI_COMM_WORLD, status.MPI_ERROR);
-            }
+                     MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+            // if (status.MPI_ERROR != MPI_SUCCESS)
+            // {
+            //     printf("MPI_Recv error\n");
+            //     MPI_Abort(MPI_COMM_WORLD, status.MPI_ERROR);
+            // }
 
             tosses_per_process += partial_tosses;
         }

@@ -42,9 +42,16 @@ int main(int argc, char **argv)
     srand(world_rank);
 
     long long int tosses_per_process = tosses / world_size;
+    long long int remainder = tosses % world_size;
+
     if (world_rank > 0)
     {
         // handle workers
+        if (world_rank <= remainder)
+        {
+            tosses_per_process++;
+        }
+
         tosses_per_process = estimate_tosses_in_circle(tosses_per_process);
         MPI_Send(&tosses_per_process, 1, MPI_LONG_LONG_INT, 0, 0,
                  MPI_COMM_WORLD);
@@ -52,8 +59,7 @@ int main(int argc, char **argv)
     else if (world_rank == 0)
     {
         // master
-        tosses_per_process =
-            estimate_tosses_in_circle(tosses_per_process + tosses % world_size);
+        tosses_per_process = estimate_tosses_in_circle(tosses_per_process);
     }
 
     if (world_rank == 0)

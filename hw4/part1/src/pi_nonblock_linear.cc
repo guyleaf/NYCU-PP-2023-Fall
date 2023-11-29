@@ -10,7 +10,7 @@ long long int estimate_tosses_in_circle(long long int tosses)
     long long int number_in_circle = 0;
     double x, y, distance_squared;
 
-    for (long long int toss = 0; toss < tosses; toss++)
+    while (tosses > 0)
     {
         x = (double)rand() / RAND_MAX;
         y = (double)rand() / RAND_MAX;
@@ -19,6 +19,7 @@ long long int estimate_tosses_in_circle(long long int tosses)
         {
             number_in_circle++;
         }
+        tosses--;
     }
 
     return number_in_circle;

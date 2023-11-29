@@ -58,20 +58,12 @@ int main(int argc, char **argv)
 
     if (world_rank == 0)
     {
-        // MPI_Status status;
-
         // process PI result
         long long int partial_tosses;
         for (int rank = 1; rank < world_size; rank++)
         {
             MPI_Recv(&partial_tosses, 1, MPI_LONG_LONG_INT, rank, 0,
                      MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-
-            // if (status.MPI_ERROR != MPI_SUCCESS)
-            // {
-            //     printf("MPI_Recv error\n");
-            //     MPI_Abort(MPI_COMM_WORLD, status.MPI_ERROR);
-            // }
 
             tosses_per_process += partial_tosses;
         }

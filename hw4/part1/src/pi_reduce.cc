@@ -5,6 +5,21 @@
 #include <time.h>
 #include <unistd.h>
 
+#define MAX_FAST_RAND 0x7FFF
+
+static unsigned int g_seed;
+
+// Used to seed the generator.
+inline void fast_srand(int seed) { g_seed = seed; }
+
+// Compute a pseudorandom integer.
+// Output value in range [0, 32767]
+inline int fast_rand(void)
+{
+    g_seed = (214013 * g_seed + 2531011);
+    return (g_seed >> 16) & MAX_FAST_RAND;
+}
+
 long long int estimate_tosses_in_circle(long long int tosses)
 {
     long long int number_in_circle = 0;
@@ -12,10 +27,10 @@ long long int estimate_tosses_in_circle(long long int tosses)
 
     while (tosses > 0)
     {
-        x = (double)rand() / RAND_MAX;
-        y = (double)rand() / RAND_MAX;
+        x = (double)fast_rand() / MAX_FAST_RAND;
+        y = (double)fast_rand() / MAX_FAST_RAND;
         distance_squared = x * x + y * y;
-        if (distance_squared <= 1.0)
+        if (distance_squared <= 1)
         {
             number_in_circle++;
         }
@@ -39,7 +54,7 @@ int main(int argc, char **argv)
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
-    srand(world_rank);
+    fast_srand(world_rank);
 
     long long int tosses_per_process = tosses / world_size;
     if (world_rank == 0)
@@ -57,7 +72,7 @@ int main(int argc, char **argv)
     if (world_rank == 0)
     {
         // PI result
-        pi_result = 4 * total_tosses / (double)tosses;
+        pi_result = 4 * (double)total_tosses / tosses;
 
         // --- DON'T TOUCH ---
         double end_time = MPI_Wtime();

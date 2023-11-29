@@ -5,24 +5,39 @@
 #include <time.h>
 #include <unistd.h>
 
-double estimate_pi(long long int tosses, long long int total_tosses)
+#define MAX_FAST_RAND 0x7FFF
+
+static unsigned int g_seed;
+
+// Used to seed the generator.
+inline void fast_srand(int seed) { g_seed = seed; }
+
+// Compute a pseudorandom integer.
+// Output value in range [0, 32767]
+inline int fast_rand(void)
+{
+    g_seed = (214013 * g_seed + 2531011);
+    return (g_seed >> 16) & MAX_FAST_RAND;
+}
+
+long long int estimate_tosses_in_circle(long long int tosses)
 {
     long long int number_in_circle = 0;
     double x, y, distance_squared;
 
     while (tosses > 0)
     {
-        x = (double)rand() / RAND_MAX;
-        y = (double)rand() / RAND_MAX;
+        x = (double)fast_rand() / MAX_FAST_RAND;
+        y = (double)fast_rand() / MAX_FAST_RAND;
         distance_squared = x * x + y * y;
-        if (distance_squared <= 1.0)
+        if (distance_squared <= 1)
         {
             number_in_circle++;
         }
         tosses--;
     }
 
-    return 4 * (double)number_in_circle / total_tosses;
+    return number_in_circle;
 }
 
 int main(int argc, char **argv)
@@ -39,11 +54,10 @@ int main(int argc, char **argv)
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
-    srand(world_rank);
+    fast_srand(world_rank);
 
     long long int tosses_per_process = tosses / world_size;
     long long int remainder = tosses % world_size;
-    double partial_pi;
 
     if (world_rank > 0)
     {
@@ -53,26 +67,28 @@ int main(int argc, char **argv)
             tosses_per_process++;
         }
 
-        partial_pi = estimate_pi(tosses_per_process, tosses);
-        MPI_Send(&partial_pi, 1, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
+        tosses_per_process = estimate_tosses_in_circle(tosses_per_process);
+        MPI_Send(&tosses_per_process, 1, MPI_LONG_LONG_INT, 0, 0,
+                 MPI_COMM_WORLD);
     }
     else if (world_rank == 0)
     {
         // master
-        partial_pi = estimate_pi(tosses_per_process, tosses);
+        tosses_per_process = estimate_tosses_in_circle(tosses_per_process);
     }
 
     if (world_rank == 0)
     {
         // process PI result
-        pi_result = partial_pi;
+        long long int partial_tosses;
         for (int rank = 1; rank < world_size; rank++)
         {
-            MPI_Recv(&partial_pi, 1, MPI_DOUBLE, rank, 0, MPI_COMM_WORLD,
-                     MPI_STATUS_IGNORE);
-
-            pi_result += partial_pi;
+            MPI_Recv(&partial_tosses, 1, MPI_LONG_LONG_INT, rank, 0,
+                     MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            tosses_per_process += partial_tosses;
         }
+
+        pi_result = 4 * (double)tosses_per_process / tosses;
 
         // --- DON'T TOUCH ---
         double end_time = MPI_Wtime();

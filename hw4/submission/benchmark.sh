@@ -3,6 +3,10 @@ set -e
 
 part1=("pi_block_linear" "pi_block_tree" "pi_gather" "pi_nonblock_linear" "pi_reduce" "pi_one_side")
 
+make clean
+make
+parallel-scp -h hosts -r ~/HW4 ~
+
 for i in "${part1[@]}"; do
 	echo "${i}"
 	echo "reference"

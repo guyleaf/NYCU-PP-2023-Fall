@@ -1,17 +1,23 @@
-FROM mcr.microsoft.com/devcontainers/cpp:1-ubuntu-20.04
+FROM mcr.microsoft.com/devcontainers/cpp:1-ubuntu-22.04
 
 ARG PERSISTENCE_DIR="/persistence"
 ARG BASH_HISTORY="${PERSISTENCE_DIR}/.bash_history"
 ARG XDG_CACHE_HOME="${PERSISTENCE_DIR}/.cache"
+ARG DEBIAN_FRONTEND="noninteractive"
+ARG TZ="Asia/Taipei"
 
 WORKDIR /tmp
+
+# SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Remove default vscode user and replace apt mirror site
 RUN deluser vscode --remove-all-files \
     && sed -i -e "s/http:\/\/archive\.ubuntu\.com\/ubuntu\//http:\/\/ubuntu.cs.nctu.edu.tw\/ubuntu\//" /etc/apt/sources.list
 
-RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-    && apt-get -y install --no-install-recommends gcc-10 g++-10 clang-11 libomp5 openmpi-bin openmpi-common libopenmpi-dev \
+RUN apt-get update \
+    && apt-get -y install --no-install-recommends man \
+    && (yes | unminimize) \
+    && apt-get -y install --no-install-recommends gcc-10 g++-10 clang-11 libomp5 openmpi-bin openmpi-common openmpi-doc libopenmpi-dev \
     && apt-get -y install --no-install-recommends linux-tools-$(uname -r) \
     && apt-get -y install --no-install-recommends tmux imagemagick stress cpulimit gnuplot-nox \
     && apt-get autoremove -y \

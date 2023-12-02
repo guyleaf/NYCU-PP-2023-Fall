@@ -5,7 +5,7 @@
 #include <time.h>
 #include <unistd.h>
 
-#define MAX_FAST_RAND 0x7FFF
+#define FAST_RAND_MAX 0x7FFF
 
 static unsigned int g_seed;
 
@@ -17,7 +17,7 @@ inline void fast_srand(int seed) { g_seed = seed; }
 inline int fast_rand(void)
 {
     g_seed = (214013 * g_seed + 2531011);
-    return (g_seed >> 16) & MAX_FAST_RAND;
+    return (g_seed >> 16) & FAST_RAND_MAX;
 }
 
 long long int estimate_tosses_in_circle(long long int tosses)
@@ -27,8 +27,8 @@ long long int estimate_tosses_in_circle(long long int tosses)
 
     while (tosses > 0)
     {
-        x = (double)fast_rand() / MAX_FAST_RAND;
-        y = (double)fast_rand() / MAX_FAST_RAND;
+        x = (double)fast_rand() / FAST_RAND_MAX;
+        y = (double)fast_rand() / FAST_RAND_MAX;
         distance_squared = x * x + y * y;
         if (distance_squared <= 1)
         {

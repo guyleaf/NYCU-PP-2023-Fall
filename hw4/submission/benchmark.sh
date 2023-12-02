@@ -5,13 +5,12 @@ part1=("pi_block_linear" "pi_block_tree" "pi_gather" "pi_nonblock_linear" "pi_re
 
 ./build.sh
 
-if [ ! -z "${1}" ]
-then
+if [[ -n ${1} ]]; then
 	echo "${1}"
 	echo "reference"
-        mpirun --hostfile hosts -np 4 "/home/HW4/ref/${1}" 1000000000
-        echo "student"
-        mpirun --hostfile hosts -np 4 "./part1/${1}.out" 1000000000
+	mpirun --hostfile hosts -np 4 "/home/HW4/ref/${1}" 1000000000
+	echo "student"
+	mpirun --hostfile hosts -np 4 "./part1/${1}.out" 1000000000
 	exit 0
 fi
 

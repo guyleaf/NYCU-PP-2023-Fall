@@ -1,12 +1,15 @@
 {
   "folders": [
     {
-      "path": "part1"
+        "path": "part1"
     },
     {
         "path": "part2"
     },
-  ],
+    {
+        "path": "submission"
+    }
+],
   "settings": {
     "editor.detectIndentation": false,
     "files.associations": {
@@ -72,7 +75,8 @@
         "stdint.h": "c",
         "cg_impl.h": "c",
         "omp.h": "c",
-        "map": "cpp"
+        "map": "cpp",
+        "numbers": "cpp"
     },
     "C_Cpp.default.cStandard": "c17",
     "C_Cpp.default.cppStandard": "c++17"

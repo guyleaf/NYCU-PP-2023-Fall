@@ -146,6 +146,10 @@ void construct_matrices(int *n_ptr, int *m_ptr, int *l_ptr, int **a_mat_ptr,
         printf("A: %d x %d\n", n, m);
         printf("B: %d x %d\n", m, l);
     }
+    else
+    {
+        *a_mat_ptr = *b_mat_ptr = nullptr;
+    }
 
     MPI_Waitall(3, requests, MPI_STATUSES_IGNORE);
 
@@ -257,20 +261,16 @@ void matrix_multiply(const int n, const int m, const int l, const int *a_mat,
 
     MPI_Waitall(2, receive_requests, MPI_STATUSES_IGNORE);
 
-    // if (comm_cart->global_rank == MPI_MASTER)
-    // {
-    //     for (int i = 0; i < size_a_local; i++)
-    //     {
-    //         if (i % n_a[comm_cart->col] == 0)
-    //         {
-    //             printf("\n");
-    //         }
-    //         printf("%d ", a_local[i]);
-    //     }
-    // }
-
-    printf("Rank %d, A Size %d, B Size %d\n", comm_cart->global_rank,
-           size_a_local, size_b_local);
+    if (comm_cart->global_rank == MPI_MASTER)
+    {
+        int coords[2];
+        for (int rank = 0; rank < comm_cart->size; rank++)
+        {
+            MPI_Cart_coords(comm_cart->world, rank, 2, coords);
+            printf("Rank %d, A: %d x %d, B: %d x %d\n", rank, m_a[coords[0]],
+                   n_a[coords[1]], m_b[coords[0]], n_b[coords[1]]);
+        }
+    }
 
     delete[] m_a;
     delete[] n_a;

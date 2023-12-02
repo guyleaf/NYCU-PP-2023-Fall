@@ -77,6 +77,107 @@ void get_submatrix_size(int &m, int &n)
     n = n_;
 }
 
+void scatter_data(const int n, const int m, const int l, const int *a_mat,
+                  const int *b_mat, int **m_a, int **n_a, int **m_b, int **n_b,
+                  int **a_local, int **b_local)
+{
+    int *m_a_ = new int[comm_cart->rows];
+    int *n_a_ = new int[comm_cart->cols];
+    int *m_b_ = new int[comm_cart->rows];
+    int *n_b_ = new int[comm_cart->cols];
+
+    // matrix a / b format: m x n
+    // 1. every process should know sizes of submatrix of a and b
+    // 2. scatter submatrix a and b
+
+    m_a_[comm_cart->row] = n;
+    n_a_[comm_cart->col] = m;
+    get_submatrix_size(m_a_[comm_cart->row], n_a_[comm_cart->col]);
+    m_b_[comm_cart->row] = m;
+    n_b_[comm_cart->col] = l;
+    get_submatrix_size(m_b_[comm_cart->row], n_b_[comm_cart->col]);
+
+    // 1. every process should know sizes of submatrix of a and b
+    MPI_Allgather(MPI_IN_PLACE, 0, MPI_DATATYPE_NULL, n_a_, 1, MPI_INT,
+                  comm_cart->row_comm);
+    MPI_Allgather(MPI_IN_PLACE, 0, MPI_DATATYPE_NULL, n_b_, 1, MPI_INT,
+                  comm_cart->row_comm);
+    MPI_Allgather(MPI_IN_PLACE, 0, MPI_DATATYPE_NULL, m_a_, 1, MPI_INT,
+                  comm_cart->col_comm);
+    MPI_Allgather(MPI_IN_PLACE, 0, MPI_DATATYPE_NULL, m_b_, 1, MPI_INT,
+                  comm_cart->col_comm);
+
+    // 2. scatter submatrix a and b
+    int size_a_local = m_a_[comm_cart->row] * n_a_[comm_cart->col];
+    int size_b_local = m_b_[comm_cart->row] * n_b_[comm_cart->col];
+    *a_local = new int[size_a_local];
+    *b_local = new int[size_b_local];
+
+    MPI_Request receive_requests[2];
+    MPI_Irecv(*a_local, size_a_local, MPI_INT, 0, A_TAG, MPI_COMM_WORLD,
+              receive_requests);
+    MPI_Irecv(*b_local, size_b_local, MPI_INT, 0, B_TAG, MPI_COMM_WORLD,
+              receive_requests + 1);
+
+    if (comm_cart->global_rank == MPI_MASTER)
+    {
+        MPI_Datatype a_block;
+        MPI_Datatype b_block;
+        const int sizes_a[2] = {n, m}, sizes_b[2] = {m, l};
+        int sizes_a_local[2], sizes_b_local[2];
+        int starts[2] = {0, 0};
+        int coords[2];
+        int row, col;
+        int offset_a = 0;
+        int offset_b = 0;
+
+        // TODO: change to use scatter?
+        MPI_Request *send_requests = new MPI_Request[2 * comm_cart->size];
+        for (int rank = 0; rank < comm_cart->size; rank++)
+        {
+            MPI_Cart_coords(comm_cart->world, rank, 2, coords);
+            row = coords[0];
+            col = coords[1];
+            sizes_a_local[0] = m_a_[row];
+            sizes_b_local[0] = m_b_[row];
+            sizes_a_local[1] = n_a_[col];
+            sizes_b_local[1] = n_b_[col];
+
+            MPI_Type_create_subarray(2, sizes_a, sizes_a_local, starts,
+                                     MPI_ORDER_C, MPI_INT, &a_block);
+            MPI_Type_create_subarray(2, sizes_b, sizes_b_local, starts,
+                                     MPI_ORDER_C, MPI_INT, &b_block);
+            MPI_Type_commit(&a_block);
+            MPI_Type_commit(&b_block);
+
+            MPI_Isend(&a_mat[offset_a], 1, a_block, rank, A_TAG, MPI_COMM_WORLD,
+                      &send_requests[2 * rank]);
+            MPI_Isend(&b_mat[offset_b], 1, b_block, rank, B_TAG, MPI_COMM_WORLD,
+                      &send_requests[2 * rank + 1]);
+
+            MPI_Type_free(&a_block);
+            MPI_Type_free(&b_block);
+
+            offset_a += n_a_[col];
+            offset_b += n_b_[col];
+            if ((rank + 1) % comm_cart->cols == 0)
+            {
+                offset_a += std::max(0, m_a_[row] - 1) * m;
+                offset_b += std::max(0, m_b_[row] - 1) * l;
+            }
+        }
+        MPI_Waitall(2 * comm_cart->size, send_requests, MPI_STATUSES_IGNORE);
+        delete[] send_requests;
+    }
+
+    MPI_Waitall(2, receive_requests, MPI_STATUSES_IGNORE);
+
+    *m_a = m_a_;
+    *n_a = n_a_;
+    *m_b = m_b_;
+    *n_b = n_b_;
+}
+
 // Read size of matrix_a and matrix_b (n, m, l) and whole data of matrixes from
 // stdin
 //
@@ -143,8 +244,10 @@ void construct_matrices(int *n_ptr, int *m_ptr, int *l_ptr, int **a_mat_ptr,
         *a_mat_ptr = a_mat;
         *b_mat_ptr = b_mat;
 
+#ifdef DEBUG
         printf("A: %d x %d\n", n, m);
         printf("B: %d x %d\n", m, l);
+#endif
     }
     else
     {
@@ -170,97 +273,27 @@ void matrix_multiply(const int n, const int m, const int l, const int *a_mat,
 {
     comm_cart = initialize_cart_group();
 
-    int *m_a = new int[comm_cart->rows];
-    int *n_a = new int[comm_cart->cols];
-    int *m_b = new int[comm_cart->rows];
-    int *n_b = new int[comm_cart->cols];
+    int *m_a = nullptr;
+    int *n_a = nullptr;
+    int *m_b = nullptr;
+    int *n_b = nullptr;
+    int *a_local = nullptr;
+    int *b_local = nullptr;
+    int *a_tmp = nullptr;
+    int *b_tmp = nullptr;
 
     // matrix a / b format: m x n
-    // 1. every process should know sizes of submatrix of a and b
-    // 2. scatter submatrix a and b
-
-    m_a[comm_cart->row] = n;
-    n_a[comm_cart->col] = m;
-    get_submatrix_size(m_a[comm_cart->row], n_a[comm_cart->col]);
-    m_b[comm_cart->row] = m;
-    n_b[comm_cart->col] = l;
-    get_submatrix_size(m_b[comm_cart->row], n_b[comm_cart->col]);
 
     // 1. every process should know sizes of submatrix of a and b
-    MPI_Allgather(MPI_IN_PLACE, 0, MPI_DATATYPE_NULL, n_a, 1, MPI_INT,
-                  comm_cart->row_comm);
-    MPI_Allgather(MPI_IN_PLACE, 0, MPI_DATATYPE_NULL, n_b, 1, MPI_INT,
-                  comm_cart->row_comm);
-    MPI_Allgather(MPI_IN_PLACE, 0, MPI_DATATYPE_NULL, m_a, 1, MPI_INT,
-                  comm_cart->col_comm);
-    MPI_Allgather(MPI_IN_PLACE, 0, MPI_DATATYPE_NULL, m_b, 1, MPI_INT,
-                  comm_cart->col_comm);
-
     // 2. scatter submatrix a and b
-    int size_a_local = m_a[comm_cart->row] * n_a[comm_cart->col];
-    int size_b_local = m_b[comm_cart->row] * n_b[comm_cart->col];
-    int *a_local = new int[size_a_local];
-    int *b_local = new int[size_b_local];
+    scatter_data(n, m, l, a_mat, b_mat, &m_a, &n_a, &m_b, &n_b, &a_local,
+                 &b_local);
 
-    MPI_Request receive_requests[2];
-    MPI_Irecv(a_local, size_a_local, MPI_INT, 0, A_TAG, MPI_COMM_WORLD,
-              receive_requests);
-    MPI_Irecv(b_local, size_b_local, MPI_INT, 0, B_TAG, MPI_COMM_WORLD,
-              receive_requests + 1);
+    // 3. initialize two tmp blocks for broadcasting
+    // 4. execute main loop
+    // 5. print matrix (gather then print)
 
-    if (comm_cart->global_rank == MPI_MASTER)
-    {
-        MPI_Datatype a_block;
-        MPI_Datatype b_block;
-        const int sizes_a[2] = {n, m}, sizes_b[2] = {m, l};
-        int sizes_a_local[2], sizes_b_local[2];
-        int starts[2] = {0, 0};
-        int coords[2];
-        int row, col;
-        int offset_a = 0;
-        int offset_b = 0;
-
-        // TODO: change to use scatter?
-        MPI_Request *send_requests = new MPI_Request[2 * comm_cart->size];
-        for (int rank = 0; rank < comm_cart->size; rank++)
-        {
-            MPI_Cart_coords(comm_cart->world, rank, 2, coords);
-            row = coords[0];
-            col = coords[1];
-            sizes_a_local[0] = m_a[row];
-            sizes_b_local[0] = m_b[row];
-            sizes_a_local[1] = n_a[col];
-            sizes_b_local[1] = n_b[col];
-
-            MPI_Type_create_subarray(2, sizes_a, sizes_a_local, starts,
-                                     MPI_ORDER_C, MPI_INT, &a_block);
-            MPI_Type_create_subarray(2, sizes_b, sizes_b_local, starts,
-                                     MPI_ORDER_C, MPI_INT, &b_block);
-            MPI_Type_commit(&a_block);
-            MPI_Type_commit(&b_block);
-
-            MPI_Isend(&a_mat[offset_a], 1, a_block, rank, A_TAG, MPI_COMM_WORLD,
-                      &send_requests[2 * rank]);
-            MPI_Isend(&b_mat[offset_b], 1, b_block, rank, B_TAG, MPI_COMM_WORLD,
-                      &send_requests[2 * rank + 1]);
-
-            MPI_Type_free(&a_block);
-            MPI_Type_free(&b_block);
-
-            offset_a += n_a[col];
-            offset_b += n_b[col];
-            if ((rank + 1) % comm_cart->cols == 0)
-            {
-                offset_a += std::max(0, m_a[row] - 1) * m;
-                offset_b += std::max(0, m_b[row] - 1) * l;
-            }
-        }
-        MPI_Waitall(2 * comm_cart->size, send_requests, MPI_STATUSES_IGNORE);
-        delete[] send_requests;
-    }
-
-    MPI_Waitall(2, receive_requests, MPI_STATUSES_IGNORE);
-
+#ifdef DEBUG
     if (comm_cart->global_rank == MPI_MASTER)
     {
         int coords[2];
@@ -271,6 +304,7 @@ void matrix_multiply(const int n, const int m, const int l, const int *a_mat,
                    n_a[coords[1]], m_b[coords[0]], n_b[coords[1]]);
         }
     }
+#endif
 
     delete[] m_a;
     delete[] n_a;

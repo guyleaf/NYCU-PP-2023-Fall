@@ -8,6 +8,9 @@
     },
     {
         "path": "submission"
+    },
+    {
+        "path": "data"
     }
 ],
   "settings": {

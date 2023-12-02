@@ -1,3 +1,4 @@
+SANITIZE := 0
 MPICXX := mpicxx
 CXXFLAGS := -std=c++17 -Wall
 
@@ -6,7 +7,10 @@ EXE := matmul
 all: CXXFLAGS += -O3
 all: $(EXE)
 
-debug: CXXFLAGS += -g -Wextra -Wno-deprecated-declarations -fsanitize=address -fdiagnostics-color=always
+debug: CXXFLAGS += -g -DDEBUG -Wextra -Wno-deprecated-declarations
+ifeq ($(SANITIZE),1)
+        CPPFLAGS += -fsanitize=address -fdiagnostics-color=always
+endif
 debug: $(EXE)
 
 $(EXE): main.cc matrix.cc

@@ -254,19 +254,20 @@ void matrix_multiply(const int n, const int m, const int l, const int *a_mat,
 
     MPI_Waitall(2, receive_requests, MPI_STATUSES_IGNORE);
 
-    if (comm_cart->global_rank == MPI_MASTER)
-    {
-        for (int i = 0; i < size_a_local; i++)
-        {
-            if (i % n_a[comm_cart->col] == 0)
-            {
-                printf("\n");
-            }
-            printf("%d ", a_local[i]);
-        }
-    }
+    // if (comm_cart->global_rank == MPI_MASTER)
+    // {
+    //     for (int i = 0; i < size_a_local; i++)
+    //     {
+    //         if (i % n_a[comm_cart->col] == 0)
+    //         {
+    //             printf("\n");
+    //         }
+    //         printf("%d ", a_local[i]);
+    //     }
+    // }
 
-    printf("Rank %d\n", comm_cart->global_rank);
+    printf("Rank %d, A Size %d, B Size %d\n", comm_cart->global_rank,
+           size_a_local, size_b_local);
 
     delete[] m_a;
     delete[] n_a;

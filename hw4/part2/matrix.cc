@@ -142,6 +142,9 @@ void construct_matrices(int *n_ptr, int *m_ptr, int *l_ptr, int **a_mat_ptr,
 
         *a_mat_ptr = a_mat;
         *b_mat_ptr = b_mat;
+
+        printf("A: %d x %d\n", n, m);
+        printf("B: %d x %d\n", m, l);
     }
 
     MPI_Waitall(3, requests, MPI_STATUSES_IGNORE);

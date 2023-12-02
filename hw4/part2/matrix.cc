@@ -266,6 +266,8 @@ void matrix_multiply(const int n, const int m, const int l, const int *a_mat,
         }
     }
 
+    printf("Rank %d\n", comm_cart->global_rank);
+
     delete[] m_a;
     delete[] n_a;
     delete[] m_b;

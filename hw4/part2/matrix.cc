@@ -1,5 +1,6 @@
 #include <mpi.h>
 
+#include <algorithm>
 #include <cmath>
 #include <cstdio>
 #include <string>
@@ -7,6 +8,7 @@
 #define MPI_MASTER 0
 #define A_TAG 0
 #define B_TAG 1
+#define PANEL_WIDTH 32
 
 struct mpi_comm_cart_t
 {
@@ -77,6 +79,40 @@ void get_submatrix_size(int &m, int &n)
     n = n_;
 }
 
+void naive_matmul(const int m, const int n, const int k, const int *a_mat,
+                  const int lda, const int *b_mat, const int ldb, int *c_mat,
+                  const int ldc)
+{
+    // outer product
+    for (int kk = 0; kk < k; kk++)
+    {
+        for (int ii = 0; ii < m; ii++)
+        {
+            for (int jj = 0; jj < n; jj++)
+            {
+                c_mat[jj * ldc + ii] +=
+                    a_mat[kk * lda + ii] * b_mat[jj * ldb + kk];
+            }
+        }
+    }
+}
+
+void print_matrix(const int m, const int n, const int *mat)
+{
+    for (int i = 0; i < m; i++)
+    {
+        for (int j = 0; j < n; j++)
+        {
+            printf("%d", mat[j * m + i]);
+            if (j != n - 1)
+            {
+                printf(" ");
+            }
+        }
+        printf("\n");
+    }
+}
+
 void scatter_data(const int n, const int m, const int l, const int *a_mat,
                   const int *b_mat, int **m_a, int **n_a, int **m_b, int **n_b,
                   int **a_local, int **b_local)
@@ -125,11 +161,10 @@ void scatter_data(const int n, const int m, const int l, const int *a_mat,
         MPI_Datatype b_block;
         const int sizes_a[2] = {n, m}, sizes_b[2] = {m, l};
         int sizes_a_local[2], sizes_b_local[2];
-        int starts[2] = {0, 0};
+        int starts_a[2] = {0, 0};
+        int starts_b[2] = {0, 0};
         int coords[2];
         int row, col;
-        int offset_a = 0;
-        int offset_b = 0;
 
         // TODO: change to use scatter?
         MPI_Request *send_requests = new MPI_Request[2 * comm_cart->size];
@@ -143,27 +178,27 @@ void scatter_data(const int n, const int m, const int l, const int *a_mat,
             sizes_a_local[1] = n_a_[col];
             sizes_b_local[1] = n_b_[col];
 
-            MPI_Type_create_subarray(2, sizes_a, sizes_a_local, starts,
-                                     MPI_ORDER_C, MPI_INT, &a_block);
-            MPI_Type_create_subarray(2, sizes_b, sizes_b_local, starts,
-                                     MPI_ORDER_C, MPI_INT, &b_block);
+            MPI_Type_create_subarray(2, sizes_a, sizes_a_local, starts_a,
+                                     MPI_ORDER_FORTRAN, MPI_INT, &a_block);
+            MPI_Type_create_subarray(2, sizes_b, sizes_b_local, starts_b,
+                                     MPI_ORDER_FORTRAN, MPI_INT, &b_block);
             MPI_Type_commit(&a_block);
             MPI_Type_commit(&b_block);
 
-            MPI_Isend(&a_mat[offset_a], 1, a_block, rank, A_TAG, MPI_COMM_WORLD,
+            MPI_Isend(a_mat, 1, a_block, rank, A_TAG, MPI_COMM_WORLD,
                       &send_requests[2 * rank]);
-            MPI_Isend(&b_mat[offset_b], 1, b_block, rank, B_TAG, MPI_COMM_WORLD,
+            MPI_Isend(b_mat, 1, b_block, rank, B_TAG, MPI_COMM_WORLD,
                       &send_requests[2 * rank + 1]);
 
             MPI_Type_free(&a_block);
             MPI_Type_free(&b_block);
 
-            offset_a += n_a_[col];
-            offset_b += n_b_[col];
+            starts_a[1] = (starts_a[1] + n_a_[col]) % m;
+            starts_b[1] = (starts_b[1] + n_b_[col]) % l;
             if ((rank + 1) % comm_cart->cols == 0)
             {
-                offset_a += std::max(0, m_a_[row] - 1) * m;
-                offset_b += std::max(0, m_b_[row] - 1) * l;
+                starts_a[0] += m_a_[row];
+                starts_b[0] += m_b_[row];
             }
         }
         MPI_Waitall(2 * comm_cart->size, send_requests, MPI_STATUSES_IGNORE);
@@ -171,6 +206,35 @@ void scatter_data(const int n, const int m, const int l, const int *a_mat,
     }
 
     MPI_Waitall(2, receive_requests, MPI_STATUSES_IGNORE);
+
+#ifdef DEBUG
+
+    if (comm_cart->global_rank == 0)
+    {
+        printf("Scatter data\n");
+
+        int coords[2];
+        for (int rank = 0; rank < comm_cart->size; rank++)
+        {
+            MPI_Cart_coords(comm_cart->world, rank, 2, coords);
+            printf("Rank %d, A: %d x %d, B: %d x %d\n", rank, m_a_[coords[0]],
+                   n_a_[coords[1]], m_b_[coords[0]], n_b_[coords[1]]);
+        }
+
+        printf("Rank %d, A: \n", comm_cart->global_rank);
+        print_matrix(m_a_[comm_cart->row], n_a_[comm_cart->col], *a_local);
+        printf("Rank %d, B: \n", comm_cart->global_rank);
+        print_matrix(m_b_[comm_cart->row], n_b_[comm_cart->col], *b_local);
+
+        printf("=====================\n");
+    }
+
+    // printf("Rank %d, A: \n", comm_cart->global_rank);
+    // print_matrix(m_a_[comm_cart->row], n_a_[comm_cart->col], *a_local);
+    // printf("Rank %d, B: \n", comm_cart->global_rank);
+    // print_matrix(m_b_[comm_cart->row], n_b_[comm_cart->col], *b_local);
+
+#endif
 
     *m_a = m_a_;
     *n_a = n_a_;
@@ -217,11 +281,12 @@ void construct_matrices(int *n_ptr, int *m_ptr, int *l_ptr, int **a_mat_ptr,
         int *a_mat = new int[n * m];
         int *b_mat = new int[m * l];
 
+        // stored in column-major order
         for (int i = 0; i < n; i++)
         {
             for (int j = 0; j < m; j++)
             {
-                if (std::scanf(" %d", &a_mat[i * m + j]) == EOF)
+                if (std::scanf(" %d", &a_mat[j * n + i]) == EOF)
                 {
                     printf("Scanf error: cannot parse stdin\n");
                     MPI_Abort(MPI_COMM_WORLD, 1);
@@ -229,11 +294,12 @@ void construct_matrices(int *n_ptr, int *m_ptr, int *l_ptr, int **a_mat_ptr,
             }
         }
 
+        // stored in column-major order
         for (int i = 0; i < m; i++)
         {
             for (int j = 0; j < l; j++)
             {
-                if (std::scanf(" %d", &b_mat[i * l + j]) == EOF)
+                if (std::scanf(" %d", &b_mat[j * m + i]) == EOF)
                 {
                     printf("Scanf error: cannot parse stdin\n");
                     MPI_Abort(MPI_COMM_WORLD, 1);
@@ -245,8 +311,12 @@ void construct_matrices(int *n_ptr, int *m_ptr, int *l_ptr, int **a_mat_ptr,
         *b_mat_ptr = b_mat;
 
 #ifdef DEBUG
+        printf("Read data\n");
         printf("A: %d x %d\n", n, m);
+        print_matrix(n, m, *a_mat_ptr);
         printf("B: %d x %d\n", m, l);
+        print_matrix(m, l, *b_mat_ptr);
+        printf("=====================\n");
 #endif
     }
     else
@@ -279,6 +349,7 @@ void matrix_multiply(const int n, const int m, const int l, const int *a_mat,
     int *n_b = nullptr;
     int *a_local = nullptr;
     int *b_local = nullptr;
+    int *c_local = nullptr;
     int *a_tmp = nullptr;
     int *b_tmp = nullptr;
 
@@ -289,22 +360,237 @@ void matrix_multiply(const int n, const int m, const int l, const int *a_mat,
     scatter_data(n, m, l, a_mat, b_mat, &m_a, &n_a, &m_b, &n_b, &a_local,
                  &b_local);
 
-    // 3. initialize two tmp blocks for broadcasting
+    // 3. initialize two tmp blocks for broadcasting and c submatrix
+    int size_a_tmp = m_a[comm_cart->row] * PANEL_WIDTH;
+    int size_b_tmp = PANEL_WIDTH * n_b[comm_cart->col];
+    int size_c_local = m_a[comm_cart->row] * n_b[comm_cart->col];
+    a_tmp = new int[size_a_tmp];
+    b_tmp = new int[size_b_tmp];
+    c_local = new int[size_c_local]();
+
     // 4. execute main loop
-    // 5. print matrix (gather then print)
+    int nb;
+    int current_row = 0, current_col = 0;
+    int ii = 0, jj = 0;
+    int start;
+    MPI_Datatype b_tmp_block;
+    int sizes_b_tmp[] = {PANEL_WIDTH, n_b[comm_cart->col]};
+    int sizes_b_tmp_local[2] = {0, n_b[comm_cart->col]};
+    int starts[] = {0, 0};
+    for (int kk = 0; kk < m; kk += nb)
+    {
+        nb = std::min(PANEL_WIDTH, m_b[current_row] - ii);
+        nb = std::min(nb, n_a[current_col] - jj);
+
+        if (comm_cart->col == current_col)
+        {
+            // thanks to the contiguous of array in column-major order
+            // elements of column are stored first
+            // so, we can copy the submatrix directly without stride
+            start = jj * m_a[comm_cart->row];
+            std::copy_n(a_local + start, m_a[comm_cart->row] * nb, a_tmp);
+
+            // #ifdef DEBUG
+
+            //             if (comm_cart->global_rank == 0)
+            //             {
+            //                 printf("A tmp\n");
+            //                 printf("ii: %d, jj: %d\n", ii, jj);
+            //                 printf("nb: %d, rest_n_a: %d, rest_m_b: %d\n",
+            //                 nb,
+            //                        n_a[current_col] - jj, m_b[current_row] -
+            //                        ii);
+            //                 printf("current_row: %d, current_col: %d\n",
+            //                 current_row,
+            //                        current_col);
+
+            //                 printf("Rank %d, A tmp: \n",
+            //                 comm_cart->global_rank);
+            //                 print_matrix(m_a[comm_cart->row], PANEL_WIDTH,
+            //                 a_tmp);
+
+            //                 printf("=====================\n");
+            //             }
+
+            // #endif
+        }
+        if (comm_cart->row == current_row)
+        {
+            for (int i = ii; i < ii + nb; i++)
+            {
+                for (int j = 0; j < n_b[comm_cart->col]; j++)
+                {
+                    b_tmp[j * PANEL_WIDTH + i - ii] =
+                        b_local[j * m_b[comm_cart->row] + i];
+                }
+            }
+
+            // #ifdef DEBUG
+
+            //             if (comm_cart->global_rank == 0)
+            //             {
+            //                 printf("B tmp\n");
+            //                 printf("ii: %d, jj: %d\n", ii, jj);
+            //                 printf("nb: %d, rest_n_a: %d, rest_m_b: %d\n",
+            //                 nb,
+            //                        n_a[current_col] - jj, m_b[current_row] -
+            //                        ii);
+            //                 printf("current_row: %d, current_col: %d\n",
+            //                 current_row,
+            //                        current_col);
+
+            //                 printf("Rank %d, B tmp: \n",
+            //                 comm_cart->global_rank);
+            //                 print_matrix(PANEL_WIDTH, n_b[comm_cart->col],
+            //                 b_tmp);
+
+            //                 printf("=====================\n");
+            //             }
+
+            // #endif
+        }
+
+        MPI_Bcast(a_tmp, m_a[comm_cart->row] * nb, MPI_INT, current_col,
+                  comm_cart->row_comm);
+
+        sizes_b_tmp_local[0] = nb;
+        MPI_Type_create_subarray(2, sizes_b_tmp, sizes_b_tmp_local, starts,
+                                 MPI_ORDER_FORTRAN, MPI_INT, &b_tmp_block);
+        MPI_Type_commit(&b_tmp_block);
+        MPI_Bcast(b_tmp, 1, b_tmp_block, current_row, comm_cart->col_comm);
+        MPI_Type_free(&b_tmp_block);
 
 #ifdef DEBUG
+
+        if (comm_cart->global_rank == 1)
+        {
+            printf("A tmp\n");
+            printf("ii: %d, jj: %d\n", ii, jj);
+            printf("nb: %d, rest_n_a: %d, rest_m_b: %d\n", nb,
+                   n_a[current_col] - jj, m_b[current_row] - ii);
+            printf("current_row: %d, current_col: %d\n", current_row,
+                   current_col);
+
+            printf("Rank %d, A tmp: \n", comm_cart->global_rank);
+            print_matrix(m_a[comm_cart->row], PANEL_WIDTH, a_tmp);
+
+            printf("=====================\n");
+
+            printf("B tmp\n");
+            printf("ii: %d, jj: %d\n", ii, jj);
+            printf("nb: %d, rest_n_a: %d, rest_m_b: %d\n", nb,
+                   n_a[current_col] - jj, m_b[current_row] - ii);
+            printf("current_row: %d, current_col: %d\n", current_row,
+                   current_col);
+
+            printf("Rank %d, B tmp: \n", comm_cart->global_rank);
+            print_matrix(PANEL_WIDTH, n_b[comm_cart->col], b_tmp);
+
+            printf("=====================\n");
+        }
+
+#endif
+
+        // perform matrix multiplication
+        naive_matmul(m_a[comm_cart->row], n_b[comm_cart->col], nb, a_tmp,
+                     m_a[comm_cart->row], b_tmp, PANEL_WIDTH, c_local,
+                     m_a[comm_cart->row]);
+
+        // matmul_naive(m_a[comm_cart->row], nb, n_b[comm_cart->col], a_tmp,
+        // b_tmp,
+        //              c_local);
+
+#ifdef DEBUG
+
+        if (comm_cart->global_rank == 0)
+        {
+            printf("C submatrix\n");
+
+            printf("Rank %d, C: \n", comm_cart->global_rank);
+            print_matrix(m_a[comm_cart->row], n_b[comm_cart->col], c_local);
+
+            printf("=====================\n");
+        }
+
+#endif
+
+        ii += nb;
+        jj += nb;
+        if (ii >= m_b[current_row])
+        {
+            ii = 0;
+            current_row++;
+        }
+        if (jj >= n_a[current_col])
+        {
+            jj = 0;
+            current_col++;
+        }
+    }
+
+#ifdef DEBUG
+
+    if (comm_cart->global_rank == 0)
+    {
+        printf("C submatrix\n");
+
+        printf("Rank %d, C: \n", comm_cart->global_rank);
+        print_matrix(m_a[comm_cart->row], n_b[comm_cart->col], c_local);
+
+        printf("=====================\n");
+    }
+
+#endif
+
+    // 5. gather and print matrix
     if (comm_cart->global_rank == MPI_MASTER)
     {
+        MPI_Datatype c_block;
+        const int sizes_c[] = {n, l};
+        int sizes_c_local[2];
+        int starts[] = {0, 0};
         int coords[2];
+
+        // gather submatrices to master process
+        MPI_Request *receive_requests = new MPI_Request[comm_cart->size];
+        int *c_mat = new int[n * l];
+        int row, col;
         for (int rank = 0; rank < comm_cart->size; rank++)
         {
             MPI_Cart_coords(comm_cart->world, rank, 2, coords);
-            printf("Rank %d, A: %d x %d, B: %d x %d\n", rank, m_a[coords[0]],
-                   n_a[coords[1]], m_b[coords[0]], n_b[coords[1]]);
+            row = coords[0];
+            col = coords[1];
+            sizes_c_local[0] = m_a[row];
+            sizes_c_local[1] = n_b[col];
+
+            MPI_Type_create_subarray(2, sizes_c, sizes_c_local, starts,
+                                     MPI_ORDER_FORTRAN, MPI_INT, &c_block);
+            MPI_Type_commit(&c_block);
+            MPI_Irecv(c_mat, 1, c_block, rank, 0, MPI_COMM_WORLD,
+                      receive_requests + rank);
+            MPI_Type_free(&c_block);
+
+            starts[1] = (starts[1] + n_b[col]) % l;
+            if ((rank + 1) % comm_cart->cols == 0)
+            {
+                starts[0] += m_a[row];
+            }
         }
+
+        MPI_Send(c_local, size_c_local, MPI_INT, 0, 0, MPI_COMM_WORLD);
+
+        MPI_Waitall(comm_cart->size, receive_requests, MPI_STATUSES_IGNORE);
+
+        // print matrix
+        print_matrix(n, l, c_mat);
+
+        delete[] c_mat;
+        delete[] receive_requests;
     }
-#endif
+    else
+    {
+        MPI_Send(c_local, size_c_local, MPI_INT, 0, 0, MPI_COMM_WORLD);
+    }
 
     delete[] m_a;
     delete[] n_a;
@@ -312,6 +598,9 @@ void matrix_multiply(const int n, const int m, const int l, const int *a_mat,
     delete[] n_b;
     delete[] a_local;
     delete[] b_local;
+    delete[] c_local;
+    delete[] a_tmp;
+    delete[] b_tmp;
 }
 
 // Remember to release your allocated memory

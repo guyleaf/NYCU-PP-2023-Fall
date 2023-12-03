@@ -1,0 +1,73 @@
+make -C part2 clean
+make[1]: Entering directory '/home/311553007/NYCU-PP-2023-Fall/hw4/part2'
+rm -f matmul
+make[1]: Leaving directory '/home/311553007/NYCU-PP-2023-Fall/hw4/part2'
+rm -f part1/hello.out part1/pi_block_linear.out part1/pi_block_tree.out part1/pi_nonblock_linear.out part1/pi_gather.out part1/pi_reduce.out part1/pi_one_side.out
+mpicxx -Wall part1/hello.cc -o part1/hello.out
+mpicxx -Wall part1/pi_block_linear.cc -o part1/pi_block_linear.out
+mpicxx -Wall part1/pi_block_tree.cc -o part1/pi_block_tree.out
+mpicxx -Wall part1/pi_nonblock_linear.cc -o part1/pi_nonblock_linear.out
+mpicxx -Wall part1/pi_gather.cc -o part1/pi_gather.out
+mpicxx -Wall part1/pi_reduce.cc -o part1/pi_reduce.out
+mpicxx -Wall part1/pi_one_side.cc -o part1/pi_one_side.out
+make -C part2 
+make[1]: Entering directory '/home/311553007/NYCU-PP-2023-Fall/hw4/part2'
+mpicxx -std=c++17 -Wall -O3 main.cc matrix.cc -o matmul
+make[1]: Leaving directory '/home/311553007/NYCU-PP-2023-Fall/hw4/part2'
+[1] 23:36:33 [SUCCESS] pp2
+[2] 23:36:33 [SUCCESS] pp10
+[3] 23:36:33 [SUCCESS] pp5
+[4] 23:36:33 [SUCCESS] pp6
+[5] 23:36:33 [SUCCESS] pp3
+[6] 23:36:33 [SUCCESS] pp9
+[7] 23:36:33 [SUCCESS] pp4
+[8] 23:36:33 [SUCCESS] pp8
+[9] 23:36:33 [SUCCESS] pp7
+pi_block_linear
+reference
+3.141608
+MPI running time: 3.686913 Seconds
+student
+3.141521
+MPI running time: 2.698960 Seconds
+==========================
+pi_block_tree
+reference
+3.141567
+MPI running time: 3.639453 Seconds
+student
+3.141521
+MPI running time: 2.662254 Seconds
+==========================
+pi_gather
+reference
+3.141598
+MPI running time: 3.702498 Seconds
+student
+3.141521
+MPI running time: 2.686435 Seconds
+==========================
+pi_nonblock_linear
+reference
+3.141594
+MPI running time: 3.633056 Seconds
+student
+3.141521
+MPI running time: 2.733091 Seconds
+==========================
+pi_reduce
+reference
+3.141621
+MPI running time: 3.670422 Seconds
+student
+3.141521
+MPI running time: 2.679504 Seconds
+==========================
+pi_one_side
+reference
+3.141608
+MPI running time: 7.192956 Seconds
+student
+3.141521
+MPI running time: 2.662118 Seconds
+==========================

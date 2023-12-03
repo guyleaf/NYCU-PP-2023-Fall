@@ -9,7 +9,7 @@ all: $(EXE)
 
 debug: CXXFLAGS += -g -DDEBUG -Wextra -Wno-deprecated-declarations
 ifeq ($(SANITIZE),1)
-        CPPFLAGS += -fsanitize=address -fdiagnostics-color=always
+        CXXFLAGS += -fsanitize=address -fdiagnostics-color=always
 endif
 debug: $(EXE)
 

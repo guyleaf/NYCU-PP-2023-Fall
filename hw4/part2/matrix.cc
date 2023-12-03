@@ -492,23 +492,20 @@ void matrix_multiply(const int n, const int m, const int l, const int *a_mat,
                      m_a[comm_cart->row], b_tmp, PANEL_WIDTH, c_local,
                      m_a[comm_cart->row]);
 
-        // matmul_naive(m_a[comm_cart->row], nb, n_b[comm_cart->col], a_tmp,
-        // b_tmp,
-        //              c_local);
+        // #ifdef DEBUG
 
-#ifdef DEBUG
+        //         if (comm_cart->global_rank == 0)
+        //         {
+        //             printf("C submatrix\n");
 
-        if (comm_cart->global_rank == 0)
-        {
-            printf("C submatrix\n");
+        //             printf("Rank %d, C: \n", comm_cart->global_rank);
+        //             print_matrix(m_a[comm_cart->row], n_b[comm_cart->col],
+        //             c_local);
 
-            printf("Rank %d, C: \n", comm_cart->global_rank);
-            print_matrix(m_a[comm_cart->row], n_b[comm_cart->col], c_local);
+        //             printf("=====================\n");
+        //         }
 
-            printf("=====================\n");
-        }
-
-#endif
+        // #endif
 
         ii += nb;
         jj += nb;

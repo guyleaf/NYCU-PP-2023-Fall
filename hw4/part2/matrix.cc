@@ -103,11 +103,7 @@ void print_matrix(const int m, const int n, const int *mat)
     {
         for (int j = 0; j < n; j++)
         {
-            printf("%d", mat[j * m + i]);
-            if (j != n - 1)
-            {
-                printf(" ");
-            }
+            printf("%d ", mat[j * m + i]);
         }
         printf("\n");
     }

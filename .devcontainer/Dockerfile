@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/devcontainers/cpp:1-ubuntu-22.04
+FROM mcr.microsoft.com/devcontainers/cpp:1-ubuntu-20.04
 
 ARG PERSISTENCE_DIR="/persistence"
 ARG BASH_HISTORY="${PERSISTENCE_DIR}/.bash_history"
@@ -24,9 +24,9 @@ RUN wget --progress=dot:giga https://developer.download.nvidia.com/compute/cuda/
 RUN apt-get update && apt-get -y upgrade \
     && apt-get -y install --no-install-recommends man \
     && (yes | unminimize) \
-    && apt-get -y install --no-install-recommends gcc-10 g++-10 clang-11 libomp5 openmpi-bin openmpi-common openmpi-doc libopenmpi-dev cuda-toolkit-10-1 \
+    && apt-get -y install --no-install-recommends gcc-8 g++-8 gcc-10 g++-10 clang-11 libomp5 openmpi-bin openmpi-common openmpi-doc libopenmpi-dev cuda-toolkit-10-1 \
     && apt-get -y install --no-install-recommends linux-tools-$(uname -r) \
-    && apt-get -y install --no-install-recommends tmux imagemagick stress cpulimit gnuplot-nox \
+    && apt-get -y install --no-install-recommends tmux imagemagick stress cpulimit gnuplot-nox python3-pip \
     && apt-get -y install --no-install-recommends --reinstall bash-completion \
     && apt-get autoremove -y \
     && apt-get clean -y \
@@ -51,6 +51,9 @@ WORKDIR /tmp/TerminalImageViewer/src
 RUN make install \
     && rm -rf /tmp/TerminalImageViewer
 WORKDIR /tmp
+
+# Install nvitop for monitoring GPU
+RUN python3 -m pip install --no-cache-dir -U nvitop
 
 # Persist bash history and others
 RUN SNIPPET="export PROMPT_COMMAND='history -a' && export HISTFILE=${BASH_HISTORY}" \

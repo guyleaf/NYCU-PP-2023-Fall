@@ -47,4 +47,5 @@ WORKDIR /tmp
 # Persist bash history and others
 RUN SNIPPET="export PROMPT_COMMAND='history -a' && export HISTFILE=${BASH_HISTORY}" \
     && echo "$SNIPPET" >> "$HOME/.bashrc" \
-    && echo "export XDG_CACHE_HOME=${XDG_CACHE_HOME}" >> "$HOME/.bashrc"
+    && echo "export XDG_CACHE_HOME=${XDG_CACHE_HOME}" >> "$HOME/.bashrc" \
+    && echo "source /etc/profile.d/bash_completion.sh" >> "$HOME/.bashrc"

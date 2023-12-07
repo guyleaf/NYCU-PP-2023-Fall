@@ -1,0 +1,605 @@
+make -C part2 clean
+make[1]: Entering directory '/home/311553007/NYCU-PP-2023-Fall/hw4/part2'
+rm -f matmul
+make[1]: Leaving directory '/home/311553007/NYCU-PP-2023-Fall/hw4/part2'
+rm -f part1/hello.out part1/pi_block_linear.out part1/pi_block_tree.out part1/pi_nonblock_linear.out part1/pi_gather.out part1/pi_reduce.out part1/pi_one_side.out
+mpicxx -Wall part1/hello.cc -o part1/hello.out
+mpicxx -Wall part1/pi_block_linear.cc -o part1/pi_block_linear.out
+mpicxx -Wall part1/pi_block_tree.cc -o part1/pi_block_tree.out
+mpicxx -Wall part1/pi_nonblock_linear.cc -o part1/pi_nonblock_linear.out
+mpicxx -Wall part1/pi_gather.cc -o part1/pi_gather.out
+mpicxx -Wall part1/pi_reduce.cc -o part1/pi_reduce.out
+mpicxx -Wall part1/pi_one_side.cc -o part1/pi_one_side.out
+make -C part2 
+make[1]: Entering directory '/home/311553007/NYCU-PP-2023-Fall/hw4/part2'
+mpicxx -std=c++17 -Wall -O3 main.cc matrix.cc -o matmul
+make[1]: Leaving directory '/home/311553007/NYCU-PP-2023-Fall/hw4/part2'
+[1] 23:12:43 [SUCCESS] pp2
+[2] 23:12:43 [SUCCESS] pp6
+[3] 23:12:43 [SUCCESS] pp3
+[4] 23:12:43 [SUCCESS] pp10
+[5] 23:12:43 [SUCCESS] pp4
+[6] 23:12:43 [SUCCESS] pp5
+[7] 23:12:43 [SUCCESS] pp7
+[8] 23:12:43 [SUCCESS] pp8
+[9] 23:12:43 [SUCCESS] pp9
+/home/.grade/HW4/data-set/data1_1
+Run in 2 threads
+MPI running time: 0.050884 Seconds
+MPI running time: 0.065355 Seconds
+==========================
+Run in 4 threads
+MPI running time: 0.069076 Seconds
+MPI running time: 0.053184 Seconds
+MPI running time: 0.053987 Seconds
+MPI running time: 0.053078 Seconds
+==========================
+Run in 6 threads
+MPI running time: 0.067748 Seconds
+MPI running time: 0.067170 Seconds
+MPI running time: 0.067321 Seconds
+MPI running time: 0.083388 Seconds
+MPI running time: 0.067225 Seconds
+MPI running time: 0.067317 Seconds
+==========================
+Run in 8 threads
+MPI running time: 0.098272 Seconds
+MPI running time: 0.081732 Seconds
+MPI running time: 0.082391 Seconds
+MPI running time: 0.082318 Seconds
+MPI running time: 0.081485 Seconds
+MPI running time: 0.081144 Seconds
+MPI running time: 0.083280 Seconds
+MPI running time: 0.082512 Seconds
+==========================
+/home/.grade/HW4/data-set/data1_10
+Run in 2 threads
+MPI running time: 0.050501 Seconds
+MPI running time: 0.038641 Seconds
+==========================
+Run in 4 threads
+MPI running time: 0.060438 Seconds
+MPI running time: 0.060372 Seconds
+MPI running time: 0.060567 Seconds
+MPI running time: 0.071380 Seconds
+==========================
+Run in 6 threads
+MPI running time: 0.066163 Seconds
+MPI running time: 0.064259 Seconds
+MPI running time: 0.065109 Seconds
+MPI running time: 0.065792 Seconds
+MPI running time: 0.065996 Seconds
+MPI running time: 0.086908 Seconds
+==========================
+Run in 8 threads
+MPI running time: 0.069778 Seconds
+MPI running time: 0.070287 Seconds
+MPI running time: 0.069976 Seconds
+MPI running time: 0.070797 Seconds
+MPI running time: 0.083219 Seconds
+MPI running time: 0.070001 Seconds
+MPI running time: 0.069056 Seconds
+MPI running time: 0.071191 Seconds
+==========================
+/home/.grade/HW4/data-set/data1_2
+Run in 2 threads
+MPI running time: 0.048900 Seconds
+MPI running time: 0.068741 Seconds
+==========================
+Run in 4 threads
+MPI running time: 0.059543 Seconds
+MPI running time: 0.056219 Seconds
+MPI running time: 0.055888 Seconds
+MPI running time: 0.108186 Seconds
+==========================
+Run in 6 threads
+MPI running time: 0.128288 Seconds
+MPI running time: 0.065406 Seconds
+MPI running time: 0.066250 Seconds
+MPI running time: 0.066084 Seconds
+MPI running time: 0.065113 Seconds
+MPI running time: 0.065545 Seconds
+==========================
+Run in 8 threads
+MPI running time: 0.068573 Seconds
+MPI running time: 0.068631 Seconds
+MPI running time: 0.070199 Seconds
+MPI running time: 0.068602 Seconds
+MPI running time: 0.091084 Seconds
+MPI running time: 0.068578 Seconds
+MPI running time: 0.068569 Seconds
+MPI running time: 0.068843 Seconds
+==========================
+/home/.grade/HW4/data-set/data1_3
+Run in 2 threads
+MPI running time: 0.076530 Seconds
+MPI running time: 0.055772 Seconds
+==========================
+Run in 4 threads
+MPI running time: 0.060074 Seconds
+MPI running time: 0.081287 Seconds
+MPI running time: 0.059648 Seconds
+MPI running time: 0.059151 Seconds
+==========================
+Run in 6 threads
+MPI running time: 0.094210 Seconds
+MPI running time: 0.071688 Seconds
+MPI running time: 0.071851 Seconds
+MPI running time: 0.072237 Seconds
+MPI running time: 0.071431 Seconds
+MPI running time: 0.071266 Seconds
+==========================
+Run in 8 threads
+MPI running time: 0.085195 Seconds
+MPI running time: 0.085747 Seconds
+MPI running time: 0.085321 Seconds
+MPI running time: 0.120648 Seconds
+MPI running time: 0.085488 Seconds
+MPI running time: 0.085294 Seconds
+MPI running time: 0.085260 Seconds
+MPI running time: 0.085193 Seconds
+==========================
+/home/.grade/HW4/data-set/data1_4
+Run in 2 threads
+MPI running time: 0.094165 Seconds
+MPI running time: 0.070091 Seconds
+==========================
+Run in 4 threads
+MPI running time: 0.073758 Seconds
+MPI running time: 0.099166 Seconds
+MPI running time: 0.074329 Seconds
+MPI running time: 0.073422 Seconds
+==========================
+Run in 6 threads
+MPI running time: 0.108882 Seconds
+MPI running time: 0.082690 Seconds
+MPI running time: 0.083451 Seconds
+MPI running time: 0.082866 Seconds
+MPI running time: 0.083464 Seconds
+MPI running time: 0.082813 Seconds
+==========================
+Run in 8 threads
+MPI running time: 0.097011 Seconds
+MPI running time: 0.097748 Seconds
+MPI running time: 0.096737 Seconds
+MPI running time: 0.123939 Seconds
+MPI running time: 0.096711 Seconds
+MPI running time: 0.098604 Seconds
+MPI running time: 0.096889 Seconds
+MPI running time: 0.096790 Seconds
+==========================
+/home/.grade/HW4/data-set/data1_5
+Run in 2 threads
+MPI running time: 0.056217 Seconds
+MPI running time: 0.075797 Seconds
+==========================
+Run in 4 threads
+MPI running time: 0.080720 Seconds
+MPI running time: 0.060734 Seconds
+MPI running time: 0.059472 Seconds
+MPI running time: 0.059321 Seconds
+==========================
+Run in 6 threads
+MPI running time: 0.104356 Seconds
+MPI running time: 0.082268 Seconds
+MPI running time: 0.085231 Seconds
+MPI running time: 0.081985 Seconds
+MPI running time: 0.083901 Seconds
+MPI running time: 0.082870 Seconds
+==========================
+Run in 8 threads
+MPI running time: 0.087237 Seconds
+MPI running time: 0.086152 Seconds
+MPI running time: 0.086258 Seconds
+MPI running time: 0.086263 Seconds
+MPI running time: 0.086515 Seconds
+MPI running time: 0.108131 Seconds
+MPI running time: 0.086178 Seconds
+MPI running time: 0.086181 Seconds
+==========================
+/home/.grade/HW4/data-set/data1_6
+Run in 2 threads
+MPI running time: 0.075452 Seconds
+MPI running time: 0.054197 Seconds
+==========================
+Run in 4 threads
+MPI running time: 0.057243 Seconds
+MPI running time: 0.057401 Seconds
+MPI running time: 0.080382 Seconds
+MPI running time: 0.058968 Seconds
+==========================
+Run in 6 threads
+MPI running time: 0.091568 Seconds
+MPI running time: 0.068366 Seconds
+MPI running time: 0.068836 Seconds
+MPI running time: 0.068234 Seconds
+MPI running time: 0.068882 Seconds
+MPI running time: 0.068394 Seconds
+==========================
+Run in 8 threads
+MPI running time: 0.129788 Seconds
+MPI running time: 0.093675 Seconds
+MPI running time: 0.092458 Seconds
+MPI running time: 0.092530 Seconds
+MPI running time: 0.092418 Seconds
+MPI running time: 0.092601 Seconds
+MPI running time: 0.092574 Seconds
+MPI running time: 0.092511 Seconds
+==========================
+/home/.grade/HW4/data-set/data1_7
+Run in 2 threads
+MPI running time: 0.055352 Seconds
+MPI running time: 0.073906 Seconds
+==========================
+Run in 4 threads
+MPI running time: 0.060404 Seconds
+MPI running time: 0.058928 Seconds
+MPI running time: 0.059478 Seconds
+MPI running time: 0.078895 Seconds
+==========================
+Run in 6 threads
+MPI running time: 0.092271 Seconds
+MPI running time: 0.072000 Seconds
+MPI running time: 0.071865 Seconds
+MPI running time: 0.071804 Seconds
+MPI running time: 0.071773 Seconds
+MPI running time: 0.071685 Seconds
+==========================
+Run in 8 threads
+MPI running time: 0.109243 Seconds
+MPI running time: 0.089583 Seconds
+MPI running time: 0.088674 Seconds
+MPI running time: 0.088727 Seconds
+MPI running time: 0.088466 Seconds
+MPI running time: 0.088769 Seconds
+MPI running time: 0.088732 Seconds
+MPI running time: 0.088911 Seconds
+==========================
+/home/.grade/HW4/data-set/data1_8
+Run in 2 threads
+MPI running time: 0.077986 Seconds
+MPI running time: 0.055336 Seconds
+==========================
+Run in 4 threads
+MPI running time: 0.084369 Seconds
+MPI running time: 0.059537 Seconds
+MPI running time: 0.058419 Seconds
+MPI running time: 0.058778 Seconds
+==========================
+Run in 6 threads
+MPI running time: 0.093506 Seconds
+MPI running time: 0.068883 Seconds
+MPI running time: 0.068564 Seconds
+MPI running time: 0.068251 Seconds
+MPI running time: 0.069202 Seconds
+MPI running time: 0.068820 Seconds
+==========================
+Run in 8 threads
+MPI running time: 0.121146 Seconds
+MPI running time: 0.082236 Seconds
+MPI running time: 0.081745 Seconds
+MPI running time: 0.081714 Seconds
+MPI running time: 0.082606 Seconds
+MPI running time: 0.081906 Seconds
+MPI running time: 0.081828 Seconds
+MPI running time: 0.081772 Seconds
+==========================
+/home/.grade/HW4/data-set/data1_9
+Run in 2 threads
+MPI running time: 0.074581 Seconds
+MPI running time: 0.053851 Seconds
+==========================
+Run in 4 threads
+MPI running time: 0.056503 Seconds
+MPI running time: 0.079188 Seconds
+MPI running time: 0.057628 Seconds
+MPI running time: 0.056372 Seconds
+==========================
+Run in 6 threads
+MPI running time: 0.068213 Seconds
+MPI running time: 0.069736 Seconds
+MPI running time: 0.068830 Seconds
+MPI running time: 0.091383 Seconds
+MPI running time: 0.068292 Seconds
+MPI running time: 0.070708 Seconds
+==========================
+Run in 8 threads
+MPI running time: 0.083445 Seconds
+MPI running time: 0.083814 Seconds
+MPI running time: 0.084353 Seconds
+MPI running time: 0.107247 Seconds
+MPI running time: 0.083720 Seconds
+MPI running time: 0.083440 Seconds
+MPI running time: 0.083583 Seconds
+MPI running time: 0.084586 Seconds
+==========================
+/home/.grade/HW4/data-set/data2_1
+Run in 2 threads
+MPI running time: 0.858602 Seconds
+MPI running time: 1.082309 Seconds
+==========================
+Run in 4 threads
+MPI running time: 0.705811 Seconds
+MPI running time: 0.699359 Seconds
+MPI running time: 0.713466 Seconds
+MPI running time: 0.930706 Seconds
+==========================
+Run in 6 threads
+MPI running time: 0.678945 Seconds
+MPI running time: 0.705468 Seconds
+MPI running time: 0.685697 Seconds
+MPI running time: 0.684094 Seconds
+MPI running time: 0.716258 Seconds
+MPI running time: 0.941567 Seconds
+==========================
+Run in 8 threads
+MPI running time: 0.703439 Seconds
+MPI running time: 0.645051 Seconds
+MPI running time: 0.662025 Seconds
+MPI running time: 0.690546 Seconds
+MPI running time: 0.691517 Seconds
+MPI running time: 0.697745 Seconds
+MPI running time: 0.705313 Seconds
+MPI running time: 0.923576 Seconds
+==========================
+/home/.grade/HW4/data-set/data2_10
+Run in 2 threads
+MPI running time: 1.025663 Seconds
+MPI running time: 1.308912 Seconds
+==========================
+Run in 4 threads
+MPI running time: 0.744420 Seconds
+MPI running time: 0.732078 Seconds
+MPI running time: 0.770052 Seconds
+MPI running time: 1.042488 Seconds
+==========================
+Run in 6 threads
+MPI running time: 0.687661 Seconds
+MPI running time: 0.695396 Seconds
+MPI running time: 0.692327 Seconds
+MPI running time: 0.725404 Seconds
+MPI running time: 0.725926 Seconds
+MPI running time: 1.003455 Seconds
+==========================
+Run in 8 threads
+MPI running time: 0.727394 Seconds
+MPI running time: 0.668290 Seconds
+MPI running time: 0.704827 Seconds
+MPI running time: 0.678399 Seconds
+MPI running time: 0.715882 Seconds
+MPI running time: 0.715842 Seconds
+MPI running time: 0.732666 Seconds
+MPI running time: 1.005204 Seconds
+==========================
+/home/.grade/HW4/data-set/data2_2
+Run in 2 threads
+MPI running time: 0.889067 Seconds
+MPI running time: 1.084584 Seconds
+==========================
+Run in 4 threads
+MPI running time: 0.765496 Seconds
+MPI running time: 0.759864 Seconds
+MPI running time: 0.786906 Seconds
+MPI running time: 0.971318 Seconds
+==========================
+Run in 6 threads
+MPI running time: 0.738086 Seconds
+MPI running time: 0.725741 Seconds
+MPI running time: 0.763073 Seconds
+MPI running time: 0.740470 Seconds
+MPI running time: 0.756534 Seconds
+MPI running time: 0.945793 Seconds
+==========================
+Run in 8 threads
+MPI running time: 0.715527 Seconds
+MPI running time: 0.747336 Seconds
+MPI running time: 0.745370 Seconds
+MPI running time: 0.761986 Seconds
+MPI running time: 0.712534 Seconds
+MPI running time: 0.765062 Seconds
+MPI running time: 0.746974 Seconds
+MPI running time: 0.950472 Seconds
+==========================
+/home/.grade/HW4/data-set/data2_3
+Run in 2 threads
+MPI running time: 1.259245 Seconds
+MPI running time: 1.513683 Seconds
+==========================
+Run in 4 threads
+MPI running time: 0.992993 Seconds
+MPI running time: 0.997222 Seconds
+MPI running time: 1.019757 Seconds
+MPI running time: 1.271443 Seconds
+==========================
+Run in 6 threads
+MPI running time: 0.969691 Seconds
+MPI running time: 0.934265 Seconds
+MPI running time: 0.951388 Seconds
+MPI running time: 0.977127 Seconds
+MPI running time: 0.954989 Seconds
+MPI running time: 1.226094 Seconds
+==========================
+Run in 8 threads
+MPI running time: 0.903691 Seconds
+MPI running time: 0.933484 Seconds
+MPI running time: 0.947189 Seconds
+MPI running time: 0.955844 Seconds
+MPI running time: 0.924281 Seconds
+MPI running time: 0.955059 Seconds
+MPI running time: 0.904598 Seconds
+MPI running time: 1.206174 Seconds
+==========================
+/home/.grade/HW4/data-set/data2_4
+Run in 2 threads
+MPI running time: 0.851250 Seconds
+MPI running time: 0.669556 Seconds
+==========================
+Run in 4 threads
+MPI running time: 0.563083 Seconds
+MPI running time: 0.576419 Seconds
+MPI running time: 0.561471 Seconds
+MPI running time: 0.750880 Seconds
+==========================
+Run in 6 threads
+MPI running time: 0.539498 Seconds
+MPI running time: 0.518084 Seconds
+MPI running time: 0.525248 Seconds
+MPI running time: 0.554576 Seconds
+MPI running time: 0.547385 Seconds
+MPI running time: 0.724298 Seconds
+==========================
+Run in 8 threads
+MPI running time: 0.525181 Seconds
+MPI running time: 0.572303 Seconds
+MPI running time: 0.569115 Seconds
+MPI running time: 0.558627 Seconds
+MPI running time: 0.560491 Seconds
+MPI running time: 0.542213 Seconds
+MPI running time: 0.537631 Seconds
+MPI running time: 0.740239 Seconds
+==========================
+/home/.grade/HW4/data-set/data2_5
+Run in 2 threads
+MPI running time: 1.187351 Seconds
+MPI running time: 1.542880 Seconds
+==========================
+Run in 4 threads
+MPI running time: 0.878203 Seconds
+MPI running time: 0.880942 Seconds
+MPI running time: 0.920060 Seconds
+MPI running time: 1.270043 Seconds
+==========================
+Run in 6 threads
+MPI running time: 0.841249 Seconds
+MPI running time: 0.800938 Seconds
+MPI running time: 0.825571 Seconds
+MPI running time: 0.999734 Seconds
+MPI running time: 0.798817 Seconds
+MPI running time: 1.342210 Seconds
+==========================
+Run in 8 threads
+MPI running time: 0.824986 Seconds
+MPI running time: 0.982137 Seconds
+MPI running time: 0.833680 Seconds
+MPI running time: 0.782715 Seconds
+MPI running time: 0.835591 Seconds
+MPI running time: 0.795799 Seconds
+MPI running time: 0.795479 Seconds
+MPI running time: 1.364305 Seconds
+==========================
+/home/.grade/HW4/data-set/data2_6
+Run in 2 threads
+MPI running time: 1.249072 Seconds
+MPI running time: 1.510618 Seconds
+==========================
+Run in 4 threads
+MPI running time: 1.041771 Seconds
+MPI running time: 1.041703 Seconds
+MPI running time: 1.070249 Seconds
+MPI running time: 1.316286 Seconds
+==========================
+Run in 6 threads
+MPI running time: 0.983496 Seconds
+MPI running time: 0.979228 Seconds
+MPI running time: 0.992832 Seconds
+MPI running time: 0.954668 Seconds
+MPI running time: 1.003231 Seconds
+MPI running time: 1.250270 Seconds
+==========================
+Run in 8 threads
+MPI running time: 0.919448 Seconds
+MPI running time: 0.951717 Seconds
+MPI running time: 0.947454 Seconds
+MPI running time: 0.963313 Seconds
+MPI running time: 0.912119 Seconds
+MPI running time: 0.913557 Seconds
+MPI running time: 1.127895 Seconds
+MPI running time: 1.371898 Seconds
+==========================
+/home/.grade/HW4/data-set/data2_7
+Run in 2 threads
+MPI running time: 0.760355 Seconds
+MPI running time: 0.961082 Seconds
+==========================
+Run in 4 threads
+MPI running time: 0.611297 Seconds
+MPI running time: 0.640199 Seconds
+MPI running time: 0.621854 Seconds
+MPI running time: 0.836401 Seconds
+==========================
+Run in 6 threads
+MPI running time: 0.608974 Seconds
+MPI running time: 0.575044 Seconds
+MPI running time: 0.613617 Seconds
+MPI running time: 0.587024 Seconds
+MPI running time: 0.574479 Seconds
+MPI running time: 0.806310 Seconds
+==========================
+Run in 8 threads
+MPI running time: 0.616752 Seconds
+MPI running time: 0.606583 Seconds
+MPI running time: 0.588861 Seconds
+MPI running time: 0.599274 Seconds
+MPI running time: 0.612899 Seconds
+MPI running time: 0.584976 Seconds
+MPI running time: 0.565276 Seconds
+MPI running time: 0.809033 Seconds
+==========================
+/home/.grade/HW4/data-set/data2_8
+Run in 2 threads
+MPI running time: 0.884007 Seconds
+MPI running time: 1.101380 Seconds
+==========================
+Run in 4 threads
+MPI running time: 0.739422 Seconds
+MPI running time: 0.722064 Seconds
+MPI running time: 0.710636 Seconds
+MPI running time: 0.952490 Seconds
+==========================
+Run in 6 threads
+MPI running time: 0.663502 Seconds
+MPI running time: 0.680558 Seconds
+MPI running time: 0.700369 Seconds
+MPI running time: 0.673800 Seconds
+MPI running time: 0.703485 Seconds
+MPI running time: 0.912052 Seconds
+==========================
+Run in 8 threads
+MPI running time: 0.710037 Seconds
+MPI running time: 0.666958 Seconds
+MPI running time: 0.696200 Seconds
+MPI running time: 0.679483 Seconds
+MPI running time: 0.698419 Seconds
+MPI running time: 0.677361 Seconds
+MPI running time: 0.706022 Seconds
+MPI running time: 0.922304 Seconds
+==========================
+/home/.grade/HW4/data-set/data2_9
+Run in 2 threads
+MPI running time: 0.993347 Seconds
+MPI running time: 1.253013 Seconds
+==========================
+Run in 4 threads
+MPI running time: 0.788938 Seconds
+MPI running time: 0.806044 Seconds
+MPI running time: 0.814994 Seconds
+MPI running time: 1.055969 Seconds
+==========================
+Run in 6 threads
+MPI running time: 0.742636 Seconds
+MPI running time: 0.751693 Seconds
+MPI running time: 0.740685 Seconds
+MPI running time: 0.790366 Seconds
+MPI running time: 0.787223 Seconds
+MPI running time: 1.029223 Seconds
+==========================
+Run in 8 threads
+MPI running time: 0.724488 Seconds
+MPI running time: 0.749742 Seconds
+MPI running time: 0.768789 Seconds
+MPI running time: 0.724504 Seconds
+MPI running time: 0.746879 Seconds
+MPI running time: 0.767579 Seconds
+MPI running time: 0.760114 Seconds
+MPI running time: 1.010978 Seconds
+==========================

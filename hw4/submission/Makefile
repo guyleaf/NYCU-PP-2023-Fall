@@ -1,5 +1,3 @@
-PANEL_WIDTH := 32
-
 MPICXX := mpicxx
 CXXFLAGS := -Wall
 
@@ -10,7 +8,7 @@ all: part1 part2
 
 part1: $(PART1_EXES)
 part2:
-	$(MAKE) -C part2 PANEL_WIDTH=$(PANEL_WIDTH)
+	$(MAKE) -C part2
 
 %.out:%.cc
 	$(MPICXX) $(CXXFLAGS) $^ -o $@

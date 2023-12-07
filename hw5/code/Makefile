@@ -20,23 +20,25 @@ default: $(EXES)
 .PHONY: dirs clean
 
 dirs:
-		/bin/mkdir -p $(OBJDIR)/
+	/bin/mkdir -p $(OBJDIR)/
 
 clean:
-		/bin/rm -rf $(OBJDIR) *.ppm *~ $(EXES)
+	/bin/rm -rf $(OBJDIR) *.ppm *~ $(EXES)
 
 OBJS=$(OBJDIR)/main.o $(OBJDIR)/mandelbrotSerial.o $(OBJDIR)/mandelbrotThread.o $(PPM_OBJ)
 
 $(APP_NAME)_%.out: dirs $(OBJS) $(OBJDIR)/%.o
-		$(NVCC) ${CUDA_LINK_FLAGS} -o $@ $(OBJS) $(OBJDIR)/$*.o mandelbrotThreadRef.a
+	$(NVCC) ${CUDA_LINK_FLAGS} -o $@ $(OBJS) $(OBJDIR)/$*.o mandelbrotThreadRef.a
 
 $(OBJDIR)/kernel%.o : kernel%.cu kernel.h
-	${NVCC} ${CUDA_COMPILE_FLAGS} -c kernel$*.cu -o $@
+	$(NVCC) ${CUDA_COMPILE_FLAGS} -c kernel$*.cu -o $@
 
 $(OBJDIR)/%.o: %.cpp
-		$(CXX) $< $(CXXFLAGS) -c -o $@
+	$(CXX) $< $(CXXFLAGS) -c -o $@
 
 $(OBJDIR)/%.o: $(COMMONDIR)/%.cpp
 	$(CXX) $< $(CXXFLAGS) -c -o $@
 
 $(OBJDIR)/main.o: $(COMMONDIR)/CycleTimer.h kernel.h
+
+.PRECIOUS: $(OBJS) $(OBJDIR)/kernel%.o

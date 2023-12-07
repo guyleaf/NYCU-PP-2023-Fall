@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
 
-zip -x "*/.*" -r "HW4_$(id -u -n).zip" part1 part2
+id=$(id -u -n)
+zip -x "*/.*" -r "HW4_${id}.zip" part1 part2

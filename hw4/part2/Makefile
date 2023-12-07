@@ -1,8 +1,13 @@
 SANITIZE := 0
+
 MPICXX := mpicxx
 CXXFLAGS := -std=c++17 -Wall
 
 EXE := matmul
+
+ifdef PANEL_WIDTH
+	CXXFLAGS += -DPANEL_WIDTH=$(PANEL_WIDTH)
+endif
 
 all: CXXFLAGS += -O3
 all: $(EXE)

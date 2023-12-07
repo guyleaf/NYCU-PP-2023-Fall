@@ -1,3 +1,5 @@
+PANEL_WIDTH := 32
+
 MPICXX := mpicxx
 CXXFLAGS := -Wall
 
@@ -8,11 +10,11 @@ all: part1 part2
 
 part1: $(PART1_EXES)
 part2:
-	$(MAKE) -C $@ $(MAKECMDGOALS)
+	$(MAKE) -C part2 PANEL_WIDTH=$(PANEL_WIDTH)
 
 %.out:%.cc
 	$(MPICXX) $(CXXFLAGS) $^ -o $@
 
 .PHONY: clean part1 part2
-clean: part2
-	rm -f $(PART1_EXES)
+clean:
+	rm -f $(PART1_EXES) && make -C part2 clean

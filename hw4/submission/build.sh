@@ -2,5 +2,5 @@
 set -e
 
 make clean
-make
+make "${@:1}"
 parallel-scp -h part1_hosts -r ~/HW4 ~

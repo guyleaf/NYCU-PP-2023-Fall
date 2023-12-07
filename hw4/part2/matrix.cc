@@ -8,7 +8,10 @@
 #define MPI_MASTER 0
 #define A_TAG 0
 #define B_TAG 1
+
+#ifndef PANEL_WIDTH
 #define PANEL_WIDTH 32
+#endif
 
 struct mpi_comm_cart_t
 {

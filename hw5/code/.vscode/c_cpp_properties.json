@@ -5,7 +5,7 @@
       "includePath": ["${workspaceFolder}/**"],
       "defines": [],
       "compilerPath": "/usr/local/cuda/bin/nvcc",
-      "compilerArgs": ["-ccbin=g++"],
+      "compilerArgs": ["-ccbin=g++-8"],
       "intelliSenseMode": "linux-gcc-x64"
     }
   ],

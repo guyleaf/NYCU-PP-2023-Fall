@@ -1,39 +1,27 @@
-#include <stdio.h>
-#include <algorithm>
 #include <getopt.h>
+#include <stdio.h>
+
+#include <algorithm>
 
 #include "CycleTimer.h"
 
-extern void mandelbrotSerial(
-    float x0, float y0, float x1, float y1,
-    int width, int height,
-    int startRow, int numRows,
-    int maxIterations,
-    int output[]);
+extern void mandelbrotSerial(float x0, float y0, float x1, float y1, int width,
+                             int height, int startRow, int numRows,
+                             int maxIterations, int output[]);
 
-extern void mandelbrotThread(
-    float x0, float y0, float x1, float y1,
-    int width, int height,
-    int maxIterations,
-    int output[]);
+extern void mandelbrotThread(float x0, float y0, float x1, float y1, int width,
+                             int height, int maxIterations, int output[]);
 
-extern void mandelbrotThreadRef(
-    float x0, float y0, float x1, float y1,
-    int width, int height,
-    int maxIterations,
-    int output[]);
+extern void mandelbrotThreadRef(float x0, float y0, float x1, float y1,
+                                int width, int height, int maxIterations,
+                                int output[]);
 
-extern void writePPMImage(
-    int *data,
-    int width, int height,
-    const char *filename,
-    int maxIterations);
+extern void writePPMImage(int *data, int width, int height,
+                          const char *filename, int maxIterations);
 
-void scaleAndShift(float &x0, float &x1, float &y0, float &y1,
-                   float scale,
+void scaleAndShift(float &x0, float &x1, float &y0, float &y1, float scale,
                    float shiftX, float shiftY)
 {
-
     x0 *= scale;
     x1 *= scale;
     y0 *= scale;
@@ -56,7 +44,6 @@ void usage(const char *progname)
 
 bool verifyResult(int *gold, int *result, int width, int height)
 {
-
     int i, j;
 
     for (i = 0; i < height; i++)
@@ -65,8 +52,8 @@ bool verifyResult(int *gold, int *result, int width, int height)
         {
             if (abs(gold[i * width + j] - result[i * width + j]) > 0)
             {
-                printf("Mismatch : [%d][%d], Expected : %d, Actual : %d\n",
-                       i, j, gold[i * width + j], result[i * width + j]);
+                printf("Mismatch : [%d][%d], Expected : %d, Actual : %d\n", i,
+                       j, gold[i * width + j], result[i * width + j]);
                 return 0;
             }
         }
@@ -77,7 +64,6 @@ bool verifyResult(int *gold, int *result, int width, int height)
 
 int main(int argc, char **argv)
 {
-
     const unsigned int width = 1600;
     const unsigned int height = 1200;
     int maxIterations = 256;
@@ -90,66 +76,65 @@ int main(int argc, char **argv)
 
     // parse commandline options ////////////////////////////////////////////
     int opt;
-    static struct option long_options[] = {
-        {"iter", 1, 0, 'i'},
-        {"view", 1, 0, 'v'},
-        {"gpu-only", 1, 0, 'g'},
-        {"help", 0, 0, '?'},
-        {0, 0, 0, 0}};
+    static struct option long_options[] = {{"iter", 1, 0, 'i'},
+                                           {"view", 1, 0, 'v'},
+                                           {"gpu-only", 1, 0, 'g'},
+                                           {"help", 0, 0, '?'},
+                                           {0, 0, 0, 0}};
 
-    while ((opt = getopt_long(argc, argv, "i:v:g:?", long_options, NULL)) != EOF)
+    while ((opt = getopt_long(argc, argv, "i:v:g:?", long_options, NULL)) !=
+           EOF)
     {
-
         switch (opt)
         {
-        case 'i':
-        {
-            int iter = atoi(optarg);
-            if (iter < 256)
+            case 'i':
             {
-                fprintf(stderr, "Iteration should >= 256\n");
+                int iter = atoi(optarg);
+                if (iter < 256)
+                {
+                    fprintf(stderr, "Iteration should >= 256\n");
+                    return 1;
+                }
+                maxIterations = iter;
+                break;
+            }
+            case 'v':
+            {
+                int viewIndex = atoi(optarg);
+                // change view settings
+                if (viewIndex == 2)
+                {
+                    float scaleValue = .015f;
+                    float shiftX = -.986f;
+                    float shiftY = .30f;
+                    scaleAndShift(x0, x1, y0, y1, scaleValue, shiftX, shiftY);
+                }
+                else if (viewIndex > 1)
+                {
+                    fprintf(stderr, "Invalid view index\n");
+                    return 1;
+                }
+                break;
+            }
+            case 'g':
+            {
+                int flag = atoi(optarg);
+                // change GPU settings
+                if (flag == 1 || flag == 0)
+                {
+                    isGPUOnly = flag;
+                }
+                else
+                {
+                    fprintf(stderr, "Invalid setting. Only allow 0 or 1.\n");
+                    return 1;
+                }
+                break;
+            }
+            case '?':
+            default:
+                usage(argv[0]);
                 return 1;
-            }
-            maxIterations = iter;
-            break;
-        }
-        case 'v':
-        {
-            int viewIndex = atoi(optarg);
-            // change view settings
-            if (viewIndex == 2)
-            {
-                float scaleValue = .015f;
-                float shiftX = -.986f;
-                float shiftY = .30f;
-                scaleAndShift(x0, x1, y0, y1, scaleValue, shiftX, shiftY);
-            }
-            else if (viewIndex > 1)
-            {
-                fprintf(stderr, "Invalid view index\n");
-                return 1;
-            }
-            break;
-        }
-        case 'g':
-        {
-            int flag = atoi(optarg);
-            // change GPU settings
-            if (flag == 1 || flag == 0)
-            {
-                isGPUOnly = flag;
-            }
-            else
-            {
-                fprintf(stderr, "Invalid setting. Only allow 0 or 1.\n");
-                return 1;
-            }
-            break;
-        }
-        case '?':
-        default:
-            usage(argv[0]);
-            return 1;
         }
     }
     // end parsing of commandline options
@@ -168,7 +153,8 @@ int main(int argc, char **argv)
         {
             memset(output_test, 0, width * height * sizeof(int));
             double startTime = CycleTimer::currentSeconds();
-            mandelbrotSerial(x0, y0, x1, y1, width, height, 0, height, maxIterations, output_test);
+            mandelbrotSerial(x0, y0, x1, y1, width, height, 0, height,
+                             maxIterations, output_test);
             double endTime = CycleTimer::currentSeconds();
             minSerial = std::min(minSerial, endTime - startTime);
         }
@@ -186,7 +172,8 @@ int main(int argc, char **argv)
     {
         memset(output_thread, 0, width * height * sizeof(int));
         double startTime = CycleTimer::currentSeconds();
-        mandelbrotThreadRef(x0, y0, x1, y1, width, height, maxIterations, output_test);
+        mandelbrotThreadRef(x0, y0, x1, y1, width, height, maxIterations,
+                            output_test);
         double endTime = CycleTimer::currentSeconds();
         recordRef[i] = endTime - startTime;
     }
@@ -198,7 +185,8 @@ int main(int argc, char **argv)
     minRef /= 4;
 
     printf("[mandelbrot reference]:\t\t[%.3f] ms\n", minRef * 1000);
-    writePPMImage(output_test, width, height, "mandelbrot-ref.ppm", maxIterations);
+    writePPMImage(output_test, width, height, "mandelbrot-ref.ppm",
+                  maxIterations);
 
     //
     // Run the threaded version
@@ -210,7 +198,8 @@ int main(int argc, char **argv)
     {
         memset(output_thread, 0, width * height * sizeof(int));
         double startTime = CycleTimer::currentSeconds();
-        mandelbrotThread(x0, y0, x1, y1, width, height, maxIterations, output_thread);
+        mandelbrotThread(x0, y0, x1, y1, width, height, maxIterations,
+                         output_thread);
         double endTime = CycleTimer::currentSeconds();
         recordThread[i] = endTime - startTime;
     }
@@ -222,7 +211,8 @@ int main(int argc, char **argv)
     minThread /= 4;
 
     printf("[mandelbrot thread]:\t\t[%.3f] ms\n", minThread * 1000);
-    writePPMImage(output_thread, width, height, "mandelbrot-thread.ppm", maxIterations);
+    writePPMImage(output_thread, width, height, "mandelbrot-thread.ppm",
+                  maxIterations);
 
     if (!verifyResult(output_test, output_thread, width, height))
     {
@@ -236,7 +226,8 @@ int main(int argc, char **argv)
 
     // compute speedup
     if (!isGPUOnly)
-        printf("\t\t\t\t(%.2fx speedup over the CPU serial version)\n", minSerial / minThread);
+        printf("\t\t\t\t(%.2fx speedup over the CPU serial version)\n",
+               minSerial / minThread);
     printf("\t\t\t\t(%.2fx speedup over the reference)\n", minRef / minThread);
 
     delete[] output_test;

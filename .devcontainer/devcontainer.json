@@ -7,16 +7,15 @@
   },
   "features": {
     "ghcr.io/devcontainers/features/github-cli:1": {},
-    "ghcr.io/devcontainers-contrib/features/starship:1": {},
     "ghcr.io/trunk-io/devcontainer-feature/trunk:1": {}
   },
-  "runArgs": [],
+  "runArgs": ["--runtime=nvidia", "--gpus", "\"device=0\""],
   "containerEnv": {
     "OMP_NUM_THREADS": "4",
     "OMPI_ALLOW_RUN_AS_ROOT": "1",
     "OMPI_ALLOW_RUN_AS_ROOT_CONFIRM": "1"
   },
-  "postCreateCommand": "g++ -v && printf '\n' && clang++ -v",
+  "postCreateCommand": "g++ -v && printf '\n' && clang++ -v && printf '\n' && nvcc -V",
   // for rootless docker
   "remoteUser": "root",
   "updateContentCommand": "trunk install --ci",
@@ -24,7 +23,8 @@
     "source=${devcontainerId}-persistence,target=/persistence,type=volume",
     "source=${localEnv:HOME}/.ssh,target=/root/.ssh,type=bind,consistency=cached",
     "source=${localEnv:HOME}/.config/gh,target=/root/.config/gh,type=bind,consistency=cached",
-    "source=${localEnv:HOME}/data/NYCU-PP-2023-Fall,target=/data,type=bind,consistency=cached"
+    "source=${localEnv:HOME}/data/NYCU-PP-2023-Fall,target=/data,type=bind,consistency=cached",
+    "source=/var/run/nvidia-persistenced,target=/var/run/nvidia-persistenced,type=bind,consistency=cached"
   ],
   "customizations": {
     "vscode": {
@@ -57,7 +57,8 @@
         "ms-vscode.cpptools-themes",
         "emilast.LogFileHighlighter",
         "bpruitt-goddard.mermaid-markdown-syntax-highlighting",
-        "Percy.vscode-numpy-viewer"
+        "Percy.vscode-numpy-viewer",
+        "nvidia.nsight-vscode-edition"
       ]
     }
   }

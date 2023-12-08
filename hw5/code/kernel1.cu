@@ -65,7 +65,7 @@ void hostFE (float upperX, float upperY, float lowerX, float lowerY, int* img, i
     int *result = (int *)malloc(resX * resY * sizeof(int));
 
     // Allocate result array on device memory
-    int *cudaResult = NULL;
+    int *cudaResult = nullptr;
     checkCudaErrors(cudaMalloc(&cudaResult, resX * resY * sizeof(int)));
 
     // 1600 x 1200 = 1920000

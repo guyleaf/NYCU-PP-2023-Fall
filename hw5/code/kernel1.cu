@@ -23,15 +23,14 @@ void check_cuda(cudaError_t result, char const *const func,
 
 __device__ int mandel(float c_re, float c_im, int count)
 {
-    double z_re = c_re, z_im = c_im;
+    float z_re = c_re, z_im = c_im;
     int i;
-    double new_re, new_im;
     for (i = 0; i < count; ++i)
     {
-        if (z_re * z_re + z_im * z_im > 4.0) break;
+        if (z_re * z_re + z_im * z_im > 4.f) break;
 
-        new_re = z_re * z_re - z_im * z_im;
-        new_im = 2.0 * z_re * z_im;
+        float new_re = z_re * z_re - z_im * z_im;
+        float new_im = 2.f * z_re * z_im;
         z_re = c_re + new_re;
         z_im = c_im + new_im;
     }

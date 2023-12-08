@@ -41,7 +41,7 @@ __device__ int mandel(float c_re, float c_im, int count)
     return i;
 }
 
-__global__ void mandelKernel(float lowerX, float lowerY, float stepX, float stepY, int width, int *result, int maxIterations) {
+__global__ void mandelKernel(float lowerX, float lowerY, float stepX, float stepY, size_t width, int *result, int maxIterations) {
     // To avoid error caused by the floating number, use the following pseudo code
     //
     int thisX = blockIdx.x * blockDim.x + threadIdx.x;
@@ -49,10 +49,10 @@ __global__ void mandelKernel(float lowerX, float lowerY, float stepX, float step
     float x = lowerX + thisX * stepX;
     float y = lowerY + thisY * stepY;
 
-    int index = thisY * width + thisX;
+    // size_t index = thisY * width + thisX;
     int result_ = mandel(x, y, maxIterations);
 
-    result[index] = result_;
+    ((int *)((char *)result + thisY * width))[thisX] = result_;
 }
 
 // Host front-end function that allocates the memory and launches the GPU kernel
@@ -63,25 +63,28 @@ void hostFE (float upperX, float upperY, float lowerX, float lowerY, int* img, i
 
     // Allocate result array on host memory
     int *result = nullptr;
-    checkCudaErrors(cudaHostAlloc(&result, resX * resY * sizeof(int), cudaHostAllocMapped));
+    // checkCudaErrors(cudaHostAlloc(&result, resX * resY * sizeof(int), cudaHostAllocMapped));
+    checkCudaErrors(cudaHostAlloc(&result, resX * resY * sizeof(int), cudaHostAllocDefault));
 
     // Get the pointer to mapped memory on device
     int *cudaResult = nullptr;
-    checkCudaErrors(cudaHostGetDevicePointer(&cudaResult, result, 0));
-    // checkCudaErrors(cudaMalloc(&cudaResult, resX * resY * sizeof(int)));
+    size_t pitch;
+    // checkCudaErrors(cudaHostGetDevicePointer(&cudaResult, result, 0));
+    checkCudaErrors(cudaMallocPitch(&cudaResult, &pitch, resX, resY));
 
     // 1600 x 1200 = 1920000
     dim3 blockSize(BLOCK_WIDTH, BLOCK_HEIGHT);
     dim3 gridSize(resX / blockSize.x, resY / blockSize.y);
 
-    mandelKernel<<<gridSize, blockSize>>>(lowerX, lowerY, stepX, stepY, resX, cudaResult, maxIterations);
+    mandelKernel<<<gridSize, blockSize>>>(lowerX, lowerY, stepX, stepY, pitch, cudaResult, maxIterations);
 
     // Copy result array from device to host memory
-    // checkCudaErrors(cudaMemcpy(result, cudaResult, resX * resY * sizeof(int), cudaMemcpyKind::cudaMemcpyDeviceToHost));
-    // checkCudaErrors(cudaFree(cudaResult));
+    // checkCudaErrors(cudaMemcpy(result, cudaResult, resX * resY * sizeof(int), cudaMemcpyDeviceToHost));
+    checkCudaErrors(cudaMemcpy2D(result, resX * sizeof(int), cudaResult, pitch, resX, resY, cudaMemcpyDeviceToHost));
+    checkCudaErrors(cudaFree(cudaResult));
 
-    // Change to use cudaMemcpy with cudaMemcpyHostToHost flag without calling another synchronization
-    checkCudaErrors(cudaMemcpy(img, result, resX * resY * sizeof(int), cudaMemcpyHostToHost));
-    // memcpy(img, result, resX * resY * sizeof(int));
+    // // Change to use cudaMemcpy with cudaMemcpyHostToHost flag without calling another synchronization
+    // checkCudaErrors(cudaMemcpy(img, result, resX * resY * sizeof(int), cudaMemcpyHostToHost));
+    memcpy(img, result, resX * resY * sizeof(int));
     checkCudaErrors(cudaFreeHost(result));
 }

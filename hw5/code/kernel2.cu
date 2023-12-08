@@ -52,6 +52,7 @@ __global__ void mandelKernel(float lowerX, float lowerY, float stepX, float step
     // size_t index = thisY * width + thisX;
     int result_ = mandel(x, y, maxIterations);
 
+    // result[index] = result_;
     ((int *)((char *)result + thisY * width))[thisX] = result_;
 }
 
@@ -79,8 +80,8 @@ void hostFE (float upperX, float upperY, float lowerX, float lowerY, int* img, i
     mandelKernel<<<gridSize, blockSize>>>(lowerX, lowerY, stepX, stepY, pitch, cudaResult, maxIterations);
 
     // Copy result array from device to host memory
-    // checkCudaErrors(cudaMemcpy(result, cudaResult, resX * resY * sizeof(int), cudaMemcpyDeviceToHost));
-    checkCudaErrors(cudaMemcpy2D(result, resX * sizeof(int), cudaResult, pitch, resX * sizeof(int), resY, cudaMemcpyDeviceToHost));
+    checkCudaErrors(cudaMemcpy(result, cudaResult, resX * resY * sizeof(int), cudaMemcpyDeviceToHost));
+    // checkCudaErrors(cudaMemcpy2D(result, resX * sizeof(int), cudaResult, pitch, resX * sizeof(int), resY, cudaMemcpyDeviceToHost));
     checkCudaErrors(cudaFree(cudaResult));
 
     // // Change to use cudaMemcpy with cudaMemcpyHostToHost flag without calling another synchronization

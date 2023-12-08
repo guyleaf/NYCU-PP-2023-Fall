@@ -170,7 +170,7 @@ int main(int argc, char **argv)
     double recordRef[10] = {0};
     for (int i = 0; i < 10; ++i)
     {
-        memset(output_thread, 0, width * height * sizeof(int));
+        memset(output_test, 0, width * height * sizeof(int));
         double startTime = CycleTimer::currentSeconds();
         mandelbrotThreadRef(x0, y0, x1, y1, width, height, maxIterations,
                             output_test);

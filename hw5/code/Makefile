@@ -7,8 +7,9 @@ APP_NAME = mandelbrot
 OBJDIR = objs
 COMMONDIR = ./common
 
-CUDA_LINK_FLAGS = -rdc=true -arch=sm_61 -gencode=arch=compute_61,code=sm_61 -Xcompiler '-fPIC'
-CUDA_COMPILE_FLAGS = --device-c -arch=sm_61 -gencode=arch=compute_61,code=sm_61 -Xcompiler '-fPIC' -g -G -O3
+# NOTE: The assembly code mandelbrotThreadRef.a is not compiled with sm_61
+CUDA_LINK_FLAGS = -rdc=true -gencode=arch=compute_61,code=sm_61 -Xcompiler '-fPIC'
+CUDA_COMPILE_FLAGS = --device-c -gencode=arch=compute_61,code=sm_61 -Xcompiler '-fPIC' -g -G -O3
 
 PPM_CXX = $(COMMONDIR)/ppm.cpp
 PPM_OBJ = $(addprefix $(OBJDIR)/, $(subst $(COMMONDIR)/,, $(PPM_CXX:.cpp=.o)))

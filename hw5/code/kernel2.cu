@@ -87,8 +87,10 @@ void hostFE (float upperX, float upperY, float lowerX, float lowerY, int* img, i
 #endif
 
     // 1600 x 1200 = 1920000
-    dim3 blockSize(BLOCK_WIDTH, BLOCK_HEIGHT);
-    dim3 gridSize(resX / blockSize.x, resY / blockSize.y);
+    int block_width = BLOCK_WIDTH;
+    int block_height = BLOCK_HEIGHT;
+    dim3 blockSize(block_width, block_height);
+    dim3 gridSize(resX / block_width, resY / block_height);
 
 #ifdef USE_FASTER
     mandelKernel<<<gridSize, blockSize>>>(lowerX, lowerY, stepX, stepY, resX, cudaResult, maxIterations);

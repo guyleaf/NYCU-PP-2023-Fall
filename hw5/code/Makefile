@@ -9,7 +9,7 @@ COMMONDIR = ./common
 
 # NOTE: The assembly code mandelbrotThreadRef.a is not compiled with sm_61
 CUDA_LINK_FLAGS = -rdc=true -gencode=arch=compute_61,code=sm_61 -Xcompiler '-fPIC'
-CUDA_COMPILE_FLAGS = --device-c -gencode=arch=compute_61,code=sm_61 -Xcompiler '-fPIC' -g -G -O3
+CUDA_COMPILE_FLAGS = --device-c -gencode=arch=compute_61,code=sm_61 -Xcompiler '-fPIC' -g -O3
 
 PPM_CXX = $(COMMONDIR)/ppm.cpp
 PPM_OBJ = $(addprefix $(OBJDIR)/, $(subst $(COMMONDIR)/,, $(PPM_CXX:.cpp=.o)))
@@ -17,6 +17,9 @@ PPM_OBJ = $(addprefix $(OBJDIR)/, $(subst $(COMMONDIR)/,, $(PPM_CXX:.cpp=.o)))
 EXES = $(addsuffix .out,$(addprefix $(APP_NAME)_,$(KERNELS)))
 
 default: $(EXES)
+
+debug: CUDA_COMPILE_FLAGS += -G
+debug: $(EXES)
 
 .PHONY: dirs clean
 

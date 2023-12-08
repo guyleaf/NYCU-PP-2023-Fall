@@ -50,9 +50,7 @@ __global__ void mandelKernel(float lowerX, float lowerY, float stepX, float step
     float y = lowerY + thisY * stepY;
 
     int index = thisY * width + thisX;
-    int result_ = mandel(x, y, maxIterations);
-
-    result[index] = result_;
+    result[index] = mandel(x, y, maxIterations);
 }
 
 // Host front-end function that allocates the memory and launches the GPU kernel

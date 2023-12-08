@@ -7,8 +7,8 @@ APP_NAME = mandelbrot
 OBJDIR = objs
 COMMONDIR = ./common
 
-CUDA_LINK_FLAGS = -rdc=true -gencode=arch=compute_61,code=sm_61 -Xcompiler '-fPIC'
-CUDA_COMPILE_FLAGS = --device-c -gencode=arch=compute_61,code=sm_61 -Xcompiler '-fPIC' -g -O3
+CUDA_LINK_FLAGS = -rdc=true -gencode=arch=compute_61,code=sm_61 -gencode=arch=compute_75,code=sm_75 -Xcompiler '-fPIC'
+CUDA_COMPILE_FLAGS = --device-c -gencode=arch=compute_61,code=sm_61 -gencode=arch=compute_75,code=sm_75 -Xcompiler '-fPIC' -g -G -O3
 
 PPM_CXX = $(COMMONDIR)/ppm.cpp
 PPM_OBJ = $(addprefix $(OBJDIR)/, $(subst $(COMMONDIR)/,, $(PPM_CXX:.cpp=.o)))

@@ -14,6 +14,9 @@ CUDA_COMPILE_FLAGS = --device-c -gencode=arch=compute_61,code=sm_61 -gencode=arc
 ifdef CUDA_DEBUG
 	CUDA_COMPILE_FLAGS += -G
 endif
+ifdef USE_FASTER
+	CUDA_COMPILE_FLAGS += -DUSE_FASTER
+endif
 
 PPM_CXX = $(COMMONDIR)/ppm.cpp
 PPM_OBJ = $(addprefix $(OBJDIR)/, $(subst $(COMMONDIR)/,, $(PPM_CXX:.cpp=.o)))

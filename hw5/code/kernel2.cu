@@ -70,7 +70,7 @@ void hostFE (float upperX, float upperY, float lowerX, float lowerY, int* img, i
     int *cudaResult = nullptr;
     size_t pitch;
     // checkCudaErrors(cudaHostGetDevicePointer(&cudaResult, result, 0));
-    checkCudaErrors(cudaMallocPitch(&cudaResult, &pitch, resX, resY));
+    checkCudaErrors(cudaMallocPitch(&cudaResult, &pitch, resX * sizeof(int), resY));
 
     // 1600 x 1200 = 1920000
     dim3 blockSize(BLOCK_WIDTH, BLOCK_HEIGHT);

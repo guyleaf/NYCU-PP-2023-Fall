@@ -8,6 +8,11 @@
       "type": "process",
       "command": "make",
       "args": ["mandelbrot_${fileBasenameNoExtension}.out"],
+      "options": {
+        "env": {
+          "CUDA_DEBUG": "1"
+        }
+      },
       "group": "build"
     },
     {

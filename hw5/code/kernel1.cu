@@ -69,13 +69,15 @@ void hostFE (float upperX, float upperY, float lowerX, float lowerY, int* img, i
     checkCudaErrors(cudaMalloc(&cudaResult, resX * resY * sizeof(int)));
 
     // 1600 x 1200 = 1920000
-    dim3 blockSize(BLOCK_WIDTH, BLOCK_HEIGHT);
-    dim3 gridSize(resX / blockSize.x, resY / blockSize.y);
+    int block_width = BLOCK_WIDTH;
+    int block_height = BLOCK_HEIGHT;
+    dim3 blockSize(block_width, block_height);
+    dim3 gridSize(resX / block_width, resY / block_height);
 
     mandelKernel<<<gridSize, blockSize>>>(lowerX, lowerY, stepX, stepY, resX, cudaResult, maxIterations);
 
     // Copy result array from device to host memory
-    checkCudaErrors(cudaMemcpy(result, cudaResult, resX * resY * sizeof(int), cudaMemcpyKind::cudaMemcpyDeviceToHost));
+    checkCudaErrors(cudaMemcpy(result, cudaResult, resX * resY * sizeof(int), cudaMemcpyDeviceToHost));
     checkCudaErrors(cudaFree(cudaResult));
 
     memcpy(img, result, resX * resY * sizeof(int));

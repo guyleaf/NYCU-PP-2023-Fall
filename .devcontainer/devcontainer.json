@@ -58,7 +58,8 @@
         "emilast.LogFileHighlighter",
         "bpruitt-goddard.mermaid-markdown-syntax-highlighting",
         "Percy.vscode-numpy-viewer",
-        "nvidia.nsight-vscode-edition"
+        "nvidia.nsight-vscode-edition",
+        "mutantdino.resourcemonitor"
       ]
     }
   }

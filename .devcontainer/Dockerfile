@@ -24,7 +24,7 @@ RUN wget --progress=dot:giga https://developer.download.nvidia.com/compute/cuda/
 RUN apt-get update && apt-get -y upgrade \
     && apt-get -y install --no-install-recommends man \
     && (yes | unminimize) \
-    && apt-get -y install --no-install-recommends gcc-8 g++-8 gcc-10 g++-10 clang-11 libomp5 openmpi-bin openmpi-common openmpi-doc libopenmpi-dev cuda-toolkit-10-1 \
+    && apt-get -y install --no-install-recommends gcc-8 g++-8 gcc-10 g++-10 clang-11 libomp5 openmpi-bin openmpi-common openmpi-doc libopenmpi-dev libncurses5 cuda-toolkit-10-1 \
     && apt-get -y install --no-install-recommends linux-tools-$(uname -r) \
     && apt-get -y install --no-install-recommends tmux imagemagick stress cpulimit gnuplot-nox python3-pip \
     && apt-get -y install --no-install-recommends --reinstall bash-completion \

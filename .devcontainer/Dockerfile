@@ -7,7 +7,7 @@ ARG DEBIAN_FRONTEND="noninteractive"
 ARG TZ="Asia/Taipei"
 
 # Append CUDA's binary path to PATH
-ENV PATH="/usr/local/cuda/bin:$PATH"
+ENV PATH="/usr/local/cuda/bin:$PATH" MANPATH="/usr/local/cuda/doc/man:$MANPATH"
 
 WORKDIR /tmp
 

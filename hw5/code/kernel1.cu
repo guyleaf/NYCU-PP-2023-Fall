@@ -49,7 +49,7 @@ __global__ void mandelKernel(float lowerX, float lowerY, float stepX, float step
     float x = lowerX + thisX * stepX;
     float y = lowerY + thisY * stepY;
 
-    int index = (thisY * width + thisX);
+    int index = thisY * width + thisX;
     int result_ = mandel(x, y, maxIterations);
 
     result[index] = result_;

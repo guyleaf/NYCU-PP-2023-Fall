@@ -80,7 +80,7 @@ void hostFE (float upperX, float upperY, float lowerX, float lowerY, int* img, i
 
     // Copy result array from device to host memory
     // checkCudaErrors(cudaMemcpy(result, cudaResult, resX * resY * sizeof(int), cudaMemcpyDeviceToHost));
-    checkCudaErrors(cudaMemcpy2D(result, resX * sizeof(int), cudaResult, pitch, resX, resY, cudaMemcpyDeviceToHost));
+    checkCudaErrors(cudaMemcpy2D(result, resX * sizeof(int), cudaResult, pitch, resX * sizeof(int), resY, cudaMemcpyDeviceToHost));
     checkCudaErrors(cudaFree(cudaResult));
 
     // // Change to use cudaMemcpy with cudaMemcpyHostToHost flag without calling another synchronization

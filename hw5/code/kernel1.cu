@@ -25,15 +25,18 @@ __device__ int mandel(float c_re, float c_im, int count)
 {
     float z_re = c_re, z_im = c_im;
     int i;
+    float new_re, new_im;
     for (i = 0; i < count; ++i)
     {
-        if (powf(z_re, 2) + powf(z_im, 2) > 4.f)
+        new_re = powf(z_re, 2);
+        new_im = powf(z_im, 2);
+        if (new_re + new_im > 4.f)
         {
             break;
         }
 
-        float new_re = powf(z_re, 2) - powf(z_im, 2);
-        float new_im = 2.f * z_re * z_im;
+        new_re = new_re - new_im;
+        new_im = 2.f * z_re * z_im;
         z_re = c_re + new_re;
         z_im = c_im + new_im;
     }

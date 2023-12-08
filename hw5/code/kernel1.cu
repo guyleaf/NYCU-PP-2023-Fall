@@ -27,7 +27,8 @@ __device__ int mandel(float c_re, float c_im, int count)
     int i;
     for (i = 0; i < count; ++i)
     {
-        if (z_re * z_re + z_im * z_im > 4.f) break;
+        double tmp = (double)z_re * z_re + (double)z_im * z_im;
+        if (tmp > 4.0) break;
 
         float new_re = z_re * z_re - z_im * z_im;
         float new_im = 2.f * z_re * z_im;

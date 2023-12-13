@@ -6,7 +6,7 @@
 #define BLOCK_HEIGHT 16
 
 // comment out if you need faster implementation or define macro from outside
-// #define USE_FASTER
+#define USE_FASTER
 
 // limited version of checkCudaErrors from helper_cuda.h in CUDA examples
 #define checkCudaErrors(val) check_cuda((val), #val, __FILE__, __LINE__)
@@ -112,7 +112,8 @@ void hostFE (float upperX, float upperY, float lowerX, float lowerY, int* img, i
     checkCudaErrors(cudaFree(cudaResult));
 
     memcpy(img, result, resX * resY * sizeof(int));
+    checkCudaErrors(cudaFreeHost(result));
 #endif
 
-    checkCudaErrors(cudaFreeHost(result));
+    // checkCudaErrors(cudaFreeHost(result));
 }

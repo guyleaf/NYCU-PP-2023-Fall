@@ -1,6 +1,7 @@
 #include <cuda.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 #define BLOCK_WIDTH 8
 #define BLOCK_HEIGHT 8
@@ -88,7 +89,7 @@ void hostFE (float upperX, float upperY, float lowerX, float lowerY, int* img, i
 
     block_width *= GROUP_WIDTH;
     block_height *= GROUP_HEIGHT;
-    dim3 gridSize((int)std::ceil((float)resX / block_width), (int)std::ceil((float)resY / block_height));
+    dim3 gridSize((int)ceil((float)resX / block_width), (int)ceil((float)resY / block_height));
 
     mandelKernel<<<gridSize, blockSize>>>(lowerX, lowerY, stepX, stepY, resX, resY, pitch, cudaResult, maxIterations);
 

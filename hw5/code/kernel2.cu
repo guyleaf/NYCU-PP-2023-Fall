@@ -55,8 +55,9 @@ __global__ void mandelKernel(float lowerX, float lowerY, float stepX, float step
     int result_ = mandel(x, y, maxIterations);
 
 #ifdef USE_FASTER
-    size_t index = thisY * width + thisX;
-    result[index] = result_;
+    // size_t index = thisY * width + thisX;
+    // result[index] = result_;
+    ((int *)((char *)result + thisY * width))[thisX] = result_;
 #else
     ((int *)((char *)result + thisY * width))[thisX] = result_;
 #endif

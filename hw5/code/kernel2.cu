@@ -95,7 +95,7 @@ void hostFE (float upperX, float upperY, float lowerX, float lowerY, int* img, i
     dim3 gridSize(resX / block_width, resY / block_height);
 
 #ifdef USE_FASTER
-    mandelKernel<<<gridSize, blockSize>>>(lowerX, lowerY, stepX, stepY, resX, cudaResult, maxIterations);
+    mandelKernel<<<gridSize, blockSize>>>(lowerX, lowerY, stepX, stepY, pitch, cudaResult, maxIterations);
 
     // // Use cudaMemcpy with cudaMemcpyHostToHost flag without calling another synchronization
     // checkCudaErrors(cudaMemcpy(img, result, resX * resY * sizeof(int), cudaMemcpyHostToHost));

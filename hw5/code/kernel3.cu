@@ -2,11 +2,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define BLOCK_WIDTH 16
-#define BLOCK_HEIGHT 16
+#define BLOCK_WIDTH 8
+#define BLOCK_HEIGHT 8
 
-#define GROUP_WIDTH 8
-#define GROUP_HEIGHT 8
+#define GROUP_WIDTH 2
+#define GROUP_HEIGHT 2
 
 // limited version of checkCudaErrors from helper_cuda.h in CUDA examples
 #define checkCudaErrors(val) check_cuda((val), #val, __FILE__, __LINE__)
@@ -54,12 +54,12 @@ __global__ void mandelKernel(float lowerX, float lowerY, float stepX, float step
     height = min(thisY + GROUP_HEIGHT, height);
 
     float x, y;
-    for (size_t localY = thisY; localY < height; localY++)
+    for (size_t localX = thisX; localX < width; localX++)
     {
-        y = lowerY + localY * stepY;
-        for (size_t localX = thisX; localX < width; localX++)
+        x = lowerX + localX * stepX;
+        for (size_t localY = thisY; localY < height; localY++)
         {
-            x = lowerX + localX * stepX;
+            y = lowerY + localY * stepY;
             ((int *)((char *)result + localY * pitch))[localX] = mandel(x, y, maxIterations);
         }
     }

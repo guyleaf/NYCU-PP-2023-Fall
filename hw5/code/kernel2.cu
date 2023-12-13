@@ -6,7 +6,7 @@
 #define BLOCK_HEIGHT 16
 
 // comment out if you need faster implementation or define macro from outside
-#define USE_FASTER
+// #define USE_FASTER
 
 // limited version of checkCudaErrors from helper_cuda.h in CUDA examples
 #define checkCudaErrors(val) check_cuda((val), #val, __FILE__, __LINE__)
@@ -53,39 +53,30 @@ __global__ void mandelKernel(float lowerX, float lowerY, float stepX, float step
     float y = lowerY + thisY * stepY;
 
     int result_ = mandel(x, y, maxIterations);
-
-#ifdef USE_FASTER
-    // size_t index = thisY * width + thisX;
-    // result[index] = result_;
     ((int *)((char *)result + thisY * width))[thisX] = result_;
-#else
-    ((int *)((char *)result + thisY * width))[thisX] = result_;
-#endif
 }
 
 // Host front-end function that allocates the memory and launches the GPU kernel
 void hostFE (float upperX, float upperY, float lowerX, float lowerY, int* img, int resX, int resY, int maxIterations)
 {
-    int *result = nullptr, *cudaResult = nullptr;
+    size_t pitch;
+    int *cudaResult = nullptr;
     float stepX = (upperX - lowerX) / resX;
     float stepY = (upperY - lowerY) / resY;
 
-    // Plan 1: cudaHostAlloc + mapped (faster)
+    // Plan 1: cudaMallocPitch + cudaMemcpy2D to img directly (faster)
     // Plan 2: cudaHostAlloc + cudaMallocPitch + cudaMemcpy2D (slower) (homework required)
 
 #ifdef USE_FASTER
-    // // Allocate result array on host memory
-    // checkCudaErrors(cudaHostAlloc(&result, resX * resY * sizeof(int), cudaHostAllocMapped));
-
-    // // Get the pointer to mapped memory on device
-    // checkCudaErrors(cudaHostGetDevicePointer(&cudaResult, result, 0));
-    size_t pitch;
+    // Allocate padded array on device memory
     checkCudaErrors(cudaMallocPitch(&cudaResult, &pitch, resX * sizeof(int), resY));
 #else
+    int *result = nullptr;
+
     // Allocate result array on host memory
     checkCudaErrors(cudaHostAlloc(&result, resX * resY * sizeof(int), cudaHostAllocDefault));
 
-    size_t pitch;
+    // Allocate padded array on device memory
     checkCudaErrors(cudaMallocPitch(&cudaResult, &pitch, resX * sizeof(int), resY));
 #endif
 
@@ -95,18 +86,13 @@ void hostFE (float upperX, float upperY, float lowerX, float lowerY, int* img, i
     dim3 blockSize(block_width, block_height);
     dim3 gridSize(resX / block_width, resY / block_height);
 
-#ifdef USE_FASTER
     mandelKernel<<<gridSize, blockSize>>>(lowerX, lowerY, stepX, stepY, pitch, cudaResult, maxIterations);
 
-    // // Use cudaMemcpy with cudaMemcpyHostToHost flag without calling another synchronization
-    // checkCudaErrors(cudaMemcpy(img, result, resX * resY * sizeof(int), cudaMemcpyHostToHost));
-
+#ifdef USE_FASTER
     // Copy result array from device to host memory
     checkCudaErrors(cudaMemcpy2D(img, resX * sizeof(int), cudaResult, pitch, resX * sizeof(int), resY, cudaMemcpyDeviceToHost));
     checkCudaErrors(cudaFree(cudaResult));
 #else
-    mandelKernel<<<gridSize, blockSize>>>(lowerX, lowerY, stepX, stepY, pitch, cudaResult, maxIterations);
-
     // Copy result array from device to host memory
     checkCudaErrors(cudaMemcpy2D(result, resX * sizeof(int), cudaResult, pitch, resX * sizeof(int), resY, cudaMemcpyDeviceToHost));
     checkCudaErrors(cudaFree(cudaResult));
@@ -114,6 +100,4 @@ void hostFE (float upperX, float upperY, float lowerX, float lowerY, int* img, i
     memcpy(img, result, resX * resY * sizeof(int));
     checkCudaErrors(cudaFreeHost(result));
 #endif
-
-    // checkCudaErrors(cudaFreeHost(result));
 }

@@ -9,3 +9,5 @@ Course website: https://timetable.nycu.edu.tw/?r=main/crsoutline&amp;Acy=112&amp
 3. [Programming Assignment II: Multi-thread Programming](https://pp-f23.github.io/assignments/HW2)
 4. [Programming Assignment III: OpenMP Programming](https://pp-f23.github.io/assignments/HW3)
 5. [Programming Assignment IV: MPI Programming](https://pp-f23.github.io/assignments/HW4)
+6. [Programming Assignment V: CUDA Programming](https://pp-f23.github.io/assignments/HW5)
+7. [Programming Assignment VI: OpenCL Programming](https://pp-f23.github.io/assignments/HW6)

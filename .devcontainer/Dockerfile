@@ -1,10 +1,13 @@
-FROM mcr.microsoft.com/devcontainers/cpp:1-ubuntu-22.04
+FROM mcr.microsoft.com/devcontainers/cpp:1-ubuntu-20.04
 
 ARG PERSISTENCE_DIR="/persistence"
 ARG BASH_HISTORY="${PERSISTENCE_DIR}/.bash_history"
 ARG XDG_CACHE_HOME="${PERSISTENCE_DIR}/.cache"
 ARG DEBIAN_FRONTEND="noninteractive"
 ARG TZ="Asia/Taipei"
+
+# Append CUDA's binary path to PATH
+ENV PATH="/usr/local/cuda/bin:$PATH" MANPATH="/usr/local/cuda/doc/man:$MANPATH"
 
 WORKDIR /tmp
 
@@ -14,12 +17,17 @@ WORKDIR /tmp
 RUN deluser vscode --remove-all-files \
     && sed -i -e "s/http:\/\/archive\.ubuntu\.com\/ubuntu\//http:\/\/ubuntu.cs.nctu.edu.tw\/ubuntu\//" /etc/apt/sources.list
 
-RUN apt-get update \
+RUN wget --progress=dot:giga https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/cuda-keyring_1.1-1_all.deb \
+    && dpkg -i cuda-keyring_1.1-1_all.deb \
+    && rm cuda-keyring_1.1-1_all.deb
+
+RUN apt-get update && apt-get -y upgrade \
     && apt-get -y install --no-install-recommends man \
     && (yes | unminimize) \
-    && apt-get -y install --no-install-recommends gcc-10 g++-10 clang-11 libomp5 openmpi-bin openmpi-common openmpi-doc libopenmpi-dev \
+    && apt-get -y install --no-install-recommends gcc-8 g++-8 gcc-10 g++-10 clang-11 libomp5 openmpi-bin openmpi-common openmpi-doc libopenmpi-dev libncurses5 cuda-toolkit-10-1 \
     && apt-get -y install --no-install-recommends linux-tools-$(uname -r) \
-    && apt-get -y install --no-install-recommends tmux imagemagick stress cpulimit gnuplot-nox \
+    && apt-get -y install --no-install-recommends tmux imagemagick stress cpulimit gnuplot-nox python3-pip \
+    && apt-get -y install --no-install-recommends --reinstall bash-completion \
     && apt-get autoremove -y \
     && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/*
@@ -38,11 +46,14 @@ RUN wget --progress=dot:giga https://github.com/sharkdp/hyperfine/releases/downl
     && rm hyperfine-musl_1.18.0_amd64.deb
 
 # Install TerminalImageViewer (tiv)
-RUN git clone --depth 1 -b v.1.2 https://github.com/stefanhaustein/TerminalImageViewer.git
+RUN git clone --depth 1 -b v1.2.1 https://github.com/stefanhaustein/TerminalImageViewer.git
 WORKDIR /tmp/TerminalImageViewer/src
 RUN make install \
     && rm -rf /tmp/TerminalImageViewer
 WORKDIR /tmp
+
+# Install nvitop for monitoring GPU
+RUN python3 -m pip install --no-cache-dir -U nvitop
 
 # Persist bash history and others
 RUN SNIPPET="export PROMPT_COMMAND='history -a' && export HISTFILE=${BASH_HISTORY}" \

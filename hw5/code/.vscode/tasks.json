@@ -1,0 +1,31 @@
+{
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build",
+      "type": "process",
+      "command": "make",
+      "args": ["mandelbrot_${fileBasenameNoExtension}.out"],
+      "options": {
+        "env": {
+          "CUDA_DEBUG": "1"
+        }
+      },
+      "group": "build"
+    },
+    {
+      "label": "Clean",
+      "type": "process",
+      "command": "make",
+      "args": ["clean"],
+      "group": "build"
+    },
+    {
+      "label": "Clean & Build",
+      "dependsOn": ["Clean", "Build"],
+      "dependsOrder": "sequence"
+    }
+  ]
+}

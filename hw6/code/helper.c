@@ -1,8 +1,9 @@
+#include "helper.h"
+
+#include <CL/cl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <CL/cl.h>
-#include "helper.h"
 
 // This function reads in a text file and stores it as a char pointer
 char *readSource(char *kernelPath)

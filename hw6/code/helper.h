@@ -1,9 +1,9 @@
 #ifndef __HELPER__
 #define __HELPER__
 
+#include <CL/cl.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <CL/cl.h>
 
 #define CHECK(status, cmd)                           \
     {                                                \

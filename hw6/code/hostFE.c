@@ -1,6 +1,8 @@
+#include "hostFE.h"
+
 #include <stdio.h>
 #include <stdlib.h>
-#include "hostFE.h"
+
 #include "helper.h"
 
 void hostFE(int filterWidth, float *filter, int imageHeight, int imageWidth,
@@ -9,5 +11,4 @@ void hostFE(int filterWidth, float *filter, int imageHeight, int imageWidth,
 {
     cl_int status;
     int filterSize = filterWidth * filterWidth;
-
 }

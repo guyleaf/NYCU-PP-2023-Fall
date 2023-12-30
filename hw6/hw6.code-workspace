@@ -11,13 +11,13 @@
     "editor.detectIndentation": false,
     "files.associations": {
         ".env*": "dotenv",
+        "cmath": "cpp",
         "array": "cpp",
         "atomic": "cpp",
         "bit": "cpp",
         "*.tcc": "cpp",
         "cctype": "cpp",
         "clocale": "cpp",
-        "cmath": "cpp",
         "cstdarg": "cpp",
         "cstddef": "cpp",
         "cstdint": "cpp",
@@ -73,7 +73,8 @@
         "cg_impl.h": "c",
         "omp.h": "c",
         "map": "cpp",
-        "numbers": "cpp"
+        "numbers": "cpp",
+        "helper.h": "c"
     },
     "C_Cpp.default.cStandard": "c17",
     "C_Cpp.default.cppStandard": "c++17"

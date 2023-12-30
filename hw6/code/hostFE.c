@@ -52,7 +52,7 @@ void hostFE(int filterWidth, float *filter, int imageHeight, int imageWidth,
     clSetKernelArg(convKernel, 4, sizeof(imageHeight), (void *)&imageHeight);
     clSetKernelArg(convKernel, 5, sizeof(filterWidth), (void *)&filterWidth);
     // local memory for caching filter
-    // clSetKernelArg(convKernel, 6, filterSize, NULL);
+    clSetKernelArg(convKernel, 6, filterSize, NULL);
 
     // execute kernel function
     size_t globalWorkSize[] = {imageWidth, imageHeight};

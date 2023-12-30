@@ -6,7 +6,8 @@
 #include "helper.h"
 
 #define KERNEL_NAME "convolution"
-#define WORK_GROUP_SIZE 32
+#define WORK_GROUP_WIDTH 30
+#define WORK_GROUP_HEIGHT 20
 
 void hostFE(int filterWidth, float *filter, int imageHeight, int imageWidth,
             float *inputImage, float *outputImage, cl_device_id *device,
@@ -29,7 +30,7 @@ void hostFE(int filterWidth, float *filter, int imageHeight, int imageWidth,
         clCreateBuffer(*context, CL_MEM_READ_ONLY, filterSize, NULL, &status);
     CHECK(status, "clCreateBuffer(filterInput)");
 
-    // copy image and filter data to buffers
+    // copy image and filter data to buffers asynchronously
     status = clEnqueueWriteBuffer(command_queue, imageInput, CL_NON_BLOCKING, 0,
                                   imageSize, inputImage, 0, NULL, NULL);
     CHECK(status, "clEnqueueWriteBuffer(imageInput)");
@@ -50,12 +51,15 @@ void hostFE(int filterWidth, float *filter, int imageHeight, int imageWidth,
     clSetKernelArg(convKernel, 3, sizeof(imageWidth), (void *)&imageWidth);
     clSetKernelArg(convKernel, 4, sizeof(imageHeight), (void *)&imageHeight);
     clSetKernelArg(convKernel, 5, sizeof(filterWidth), (void *)&filterWidth);
+    // local memory for caching filter
+    // clSetKernelArg(convKernel, 6, filterSize, NULL);
 
     // execute kernel function
     size_t globalWorkSize[] = {imageWidth, imageHeight};
-    // size_t localWorkSize[] = {WORK_GROUP_SIZE, WORK_GROUP_SIZE};
-    status = clEnqueueNDRangeKernel(command_queue, convKernel, 2, NULL,
-                                    globalWorkSize, NULL, 0, NULL, NULL);
+    size_t localWorkSize[] = {WORK_GROUP_WIDTH, WORK_GROUP_HEIGHT};
+    status =
+        clEnqueueNDRangeKernel(command_queue, convKernel, 2, NULL,
+                               globalWorkSize, localWorkSize, 0, NULL, NULL);
     CHECK(status, "clEnqueueNDRangeKernel");
 
     // wait for kernel
@@ -69,13 +73,9 @@ void hostFE(int filterWidth, float *filter, int imageHeight, int imageWidth,
 
     // clean up all objects created in this function
     status = clReleaseKernel(convKernel);
-    CHECK(status, "clReleaseKernel");
-    status = clReleaseMemObject(imageOutput);
-    CHECK(status, "clReleaseMemObject(imageOutput)");
-    status = clReleaseMemObject(filterInput);
-    CHECK(status, "clReleaseMemObject(filterInput)");
-    status = clReleaseMemObject(imageInput);
-    CHECK(status, "clReleaseMemObject(imageInput)");
-    status = clReleaseCommandQueue(command_queue);
-    CHECK(status, "clReleaseCommandQueue");
+    status |= clReleaseMemObject(imageOutput);
+    status |= clReleaseMemObject(filterInput);
+    status |= clReleaseMemObject(imageInput);
+    status |= clReleaseCommandQueue(command_queue);
+    CHECK(status, "clReleaseXXXX");
 }

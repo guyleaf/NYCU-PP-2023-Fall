@@ -1,7 +1,7 @@
 default: conv
 
 CC = gcc-10
-FLAGS = -O3 -lOpenCL -m64 -ffloat-store -w -g
+FLAGS = -O3 -lOpenCL -m64 -ffloat-store -w -g -Wall -Wextra -Wno-deprecated-declarations
 
 OBJS = main.o bmpfuncs.o hostFE.o serialConv.o helper.o
 

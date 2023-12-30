@@ -59,7 +59,8 @@
         "bpruitt-goddard.mermaid-markdown-syntax-highlighting",
         "Percy.vscode-numpy-viewer",
         "nvidia.nsight-vscode-edition",
-        "mutantdino.resourcemonitor"
+        "mutantdino.resourcemonitor",
+        "galarius.vscode-opencl"
       ]
     }
   }

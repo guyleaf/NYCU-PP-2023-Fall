@@ -9,7 +9,7 @@
     "ghcr.io/devcontainers/features/github-cli:1": {},
     "ghcr.io/trunk-io/devcontainer-feature/trunk:1": {}
   },
-  "runArgs": ["--runtime=nvidia", "--gpus", "\"device=0\""],
+  "runArgs": ["--runtime=nvidia", "--gpus", "\"device=1\""],
   "containerEnv": {
     "OMP_NUM_THREADS": "4",
     "OMPI_ALLOW_RUN_AS_ROOT": "1",

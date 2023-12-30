@@ -24,7 +24,7 @@ RUN wget --progress=dot:giga https://developer.download.nvidia.com/compute/cuda/
 RUN apt-get update && apt-get -y upgrade \
     && apt-get -y install --no-install-recommends man \
     && (yes | unminimize) \
-    && apt-get -y install --no-install-recommends gcc-8 g++-8 gcc-10 g++-10 clang-11 libomp5 openmpi-bin openmpi-common openmpi-doc libopenmpi-dev libncurses5 cuda-toolkit-10-1 \
+    && apt-get -y install --no-install-recommends gcc-8 g++-8 gcc-10 g++-10 clang-11 libomp5 openmpi-bin openmpi-common openmpi-doc libopenmpi-dev libncurses5 cuda-toolkit-10-1 libsfml-dev libglm-dev libtclap-dev doxygen \
     && apt-get -y install --no-install-recommends linux-tools-$(uname -r) \
     && apt-get -y install --no-install-recommends tmux imagemagick stress cpulimit gnuplot-nox python3-pip \
     && apt-get -y install --no-install-recommends --reinstall bash-completion \
@@ -54,6 +54,20 @@ WORKDIR /tmp
 
 # Install nvitop for monitoring GPU
 RUN python3 -m pip install --no-cache-dir -U nvitop
+
+# Install OpenCL-SDK
+RUN git clone -b v2023.12.14 https://github.com/KhronosGroup/OpenCL-SDK.git --recursive \
+    && cmake -D BUILD_TESTING=OFF \
+        -D BUILD_DOCS=ON \
+        -D BUILD_EXAMPLES=OFF \
+        -D BUILD_TESTS=OFF \
+        -D OPENCL_SDK_BUILD_SAMPLES=OFF \
+        -D OPENCL_SDK_TEST_SAMPLES=OFF \
+        -D CMAKE_INSTALL_PREFIX=/usr \
+        -B ./OpenCL-SDK/build -S ./OpenCL-SDK \
+    && cmake --build OpenCL-SDK/build --config Release --target install \
+    && mkdir -p /etc/OpenCL/vendors \
+    && echo "libnvidia-opencl.so.1" > /etc/OpenCL/vendors/nvidia.icd
 
 # Persist bash history and others
 RUN SNIPPET="export PROMPT_COMMAND='history -a' && export HISTFILE=${BASH_HISTORY}" \

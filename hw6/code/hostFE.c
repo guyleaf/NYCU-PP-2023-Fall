@@ -30,14 +30,6 @@ void hostFE(int filterWidth, float *filter, int imageHeight, int imageWidth,
         clCreateBuffer(*context, CL_MEM_READ_ONLY, filterSize, NULL, &status);
     CHECK(status, "clCreateBuffer(filterInput)");
 
-    // copy image and filter data to buffers asynchronously
-    status = clEnqueueWriteBuffer(command_queue, imageInput, CL_NON_BLOCKING, 0,
-                                  imageSize, inputImage, 0, NULL, NULL);
-    CHECK(status, "clEnqueueWriteBuffer(imageInput)");
-    status = clEnqueueWriteBuffer(command_queue, filterInput, CL_NON_BLOCKING,
-                                  0, filterSize, filter, 0, NULL, NULL);
-    CHECK(status, "clEnqueueWriteBuffer(filterInput)");
-
     // create output buffer on device memory
     cl_mem imageOutput =
         clCreateBuffer(*context, CL_MEM_WRITE_ONLY, imageSize, NULL, &status);
@@ -53,6 +45,14 @@ void hostFE(int filterWidth, float *filter, int imageHeight, int imageWidth,
     clSetKernelArg(convKernel, 5, sizeof(filterWidth), (void *)&filterWidth);
     // local memory for caching filter
     clSetKernelArg(convKernel, 6, filterSize, NULL);
+
+    // copy image and filter data to buffers asynchronously
+    status = clEnqueueWriteBuffer(command_queue, imageInput, CL_BLOCKING, 0,
+                                  imageSize, inputImage, 0, NULL, NULL);
+    CHECK(status, "clEnqueueWriteBuffer(imageInput)");
+    status = clEnqueueWriteBuffer(command_queue, filterInput, CL_BLOCKING, 0,
+                                  filterSize, filter, 0, NULL, NULL);
+    CHECK(status, "clEnqueueWriteBuffer(filterInput)");
 
     // execute kernel function
     size_t globalWorkSize[] = {imageWidth, imageHeight};

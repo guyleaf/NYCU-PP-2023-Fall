@@ -66,8 +66,8 @@ void initCL(cl_device_id *device, cl_context *context, cl_program *program)
     status = clGetPlatformIDs(1, &platform, NULL);
     CHECK(status, "clGetPlatformIDs");
 
-    // Discover device
-    clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, 1, device, NULL);
+    // Discover GPU device
+    status = clGetDeviceIDs(platform, CL_DEVICE_TYPE_GPU, 1, device, NULL);
     CHECK(status, "clGetDeviceIDs");
 
     // Create context
@@ -79,7 +79,7 @@ void initCL(cl_device_id *device, cl_context *context, cl_program *program)
     const char *source = readSource("kernel.cl");
 
     // Create a program object with source and build it
-    *program = clCreateProgramWithSource(*context, 1, &source, NULL, NULL);
+    *program = clCreateProgramWithSource(*context, 1, &source, NULL, &status);
     CHECK(status, "clCreateProgramWithSource");
     status = clBuildProgram(*program, 1, device, NULL, NULL, NULL);
     CHECK(status, "clBuildProgram");

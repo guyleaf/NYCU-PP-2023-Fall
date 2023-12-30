@@ -84,6 +84,7 @@ void initCL(cl_device_id *device, cl_context *context, cl_program *program)
     status = clBuildProgram(*program, 1, device, NULL, NULL, NULL);
     CHECK(status, "clBuildProgram");
 
+    free(source);
     return;
 }
 

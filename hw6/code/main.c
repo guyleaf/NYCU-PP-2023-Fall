@@ -174,5 +174,14 @@ int main(int argc, char **argv)
             minSerial / minThread);
     }
 
+    // release all resources
+    clReleaseProgram(program);
+    clReleaseContext(context);
+    clReleaseDevice(device);
+    free(inputImage);
+    free(outputImage);
+    free(refImage);
+    free(filter);
+
     return 0;
 }
